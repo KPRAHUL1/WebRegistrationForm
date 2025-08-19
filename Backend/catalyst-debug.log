@@ -1,0 +1,62 @@
+[debug] [2025-02-26T09:21:26.643Z] : 
+[debug] [2025-02-26T09:21:26.644Z] : ----------------------------------------------------------------------
+[debug] [2025-02-26T09:21:26.644Z] : Command:      C:\Program Files\nodejs\node.exe C:\Users\HP\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\bin\catalyst.js init
+[debug] [2025-02-26T09:21:26.644Z] : CLI Version:  1.17.6
+[debug] [2025-02-26T09:21:26.645Z] : Platform:     win32
+[debug] [2025-02-26T09:21:26.645Z] : Node Version: v22.14.0
+[debug] [2025-02-26T09:21:26.645Z] : Time:         Wed Feb 26 2025 14:51:26 GMT+0530 (India Standard Time)
+[debug] [2025-02-26T09:21:26.646Z] : ----------------------------------------------------------------------
+[debug] [2025-02-26T09:21:26.646Z] : 
+[debug] [2025-02-26T09:21:27.447Z] : > authorizing via signed-in user option
+[debug] [2025-02-26T09:21:27.447Z] : > command requires scopes: ["ZohoCatalyst.projects.ALL","ZohoCatalyst.projects.ALL","Stratus.sdkop.CREATE","Stratus.sdkop.READ","ZohoCatalyst.project.import.CREATE"]
+[info] [2025-02-26T09:21:27.461Z] : 
+      ___  
+      \  \     ____           _             _                 _   
+   ___ \  \   / ___|   __ _  | |_    __ _  | |  _   _   ___  | |_ 
+  /  / /  /  | |      / _` | | __|  / _` | | | | | | | / __| | __|
+ /  / /__/   | |___  | (_| | | |_  | (_| | | | | |_| | \__ \ | |_ 
+ \  \         \____|  \__,_|  \__|  \__,_| |_|  \__, | |___/  \__|
+  \__\                                          |___/       
+
+You're about to initialize a Catalyst project in this directory:
+
+  D:\react\Lumia Prisma Backend
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+
+[debug] [2025-02-26T09:21:36.380Z] : > refreshing access token <
+[debug] [2025-02-26T09:21:36.381Z] : >>>> HTTP REQUEST : POST https://accounts.zoho.in/oauth/v2/token 
+<request body omitted>
+
+[debug] [2025-02-26T09:21:36.714Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Wed, 26 Feb 2025 09:21:23 GMT","content-type":"application/json;charset=UTF-8","content-length":"1948","connection":"keep-alive","set-cookie":["zalb_6e73717622=13e67ac15bc4d3ece130966123511df7; Path=/; Secure; HttpOnly","iamcsr=f8939f7d-7940-46ee-b82d-5b7ca5548b42;path=/;SameSite=None;Secure;priority=high","_zcsr_tmp=f8939f7d-7940-46ee-b82d-5b7ca5548b42;path=/;SameSite=Strict;Secure;priority=high"],"cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.zohocdn.com https://*.zoho.com https://*.zoho.eu https://*.zoho.com.cn https://*.zoho.com.au https://*.zoho.jp https://*.zoho.uk https://*.zoho.sa https://*.zohocloud.ca; report-uri https://logsapi.zoho.in/csplog?service=accounts;","pragma":"no-cache","x-frame-options":"SAMEORIGIN","vary":"accept-encoding","content-language":"en-US","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2025-02-26T09:21:36.734Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.in/baas/v1/orgs 
+
+[warn] [2025-02-26T09:21:57.867Z] : ‼ ETIMEDOUT has occured while communicating remote server. Kindly be patient while the cli retries this request.
+[debug] [2025-02-26T09:21:57.868Z] : API Error while firing request : connect ETIMEDOUT 103.103.196.93:443
+
+[debug] [2025-02-26T09:21:57.868Z] : >>>> RETRYING
+
+[warn] [2025-02-26T09:22:18.913Z] : ‼ ETIMEDOUT has occured while communicating remote server. Kindly be patient while the cli retries this request.
+[debug] [2025-02-26T09:22:18.913Z] : API Error while firing request : connect ETIMEDOUT 103.103.196.93:443
+
+[debug] [2025-02-26T09:22:18.914Z] : >>>> RETRYING
+
+[debug] [2025-02-26T09:22:19.333Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Wed, 26 Feb 2025 09:22:06 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"keep-alive","set-cookie":["zalb_3a750b85f1=ed010f63633be60a322039283f31a645; Path=/; Secure; HttpOnly","ZD_CSRF_TOKEN=34b24f55-4194-4d4e-a1fa-72f2272f05cf;path=/;SameSite=None;Secure;priority=high","_zcsr_tmp=34b24f55-4194-4d4e-a1fa-72f2272f05cf;path=/;SameSite=Strict;Secure;priority=high"],"x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[info] [2025-02-26T09:22:19.336Z] : i Setting up a new default project for this folder
+
+[debug] [2025-02-26T09:22:19.338Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.in/baas/v1/project 
+
+[debug] [2025-02-26T09:22:19.469Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Wed, 26 Feb 2025 09:22:06 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"keep-alive","set-cookie":["zalb_3a750b85f1=411f509465b028e7e235eac6930aaab2; Path=/; Secure; HttpOnly","ZD_CSRF_TOKEN=edf2fa0b-a9a8-4a15-b694-0688da8cce7d;path=/;SameSite=None;Secure;priority=high","_zcsr_tmp=edf2fa0b-a9a8-4a15-b694-0688da8cce7d;path=/;SameSite=Strict;Secure;priority=high"],"x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2025-02-26T09:22:34.825Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.in/baas/v1/project/import 
+
+[debug] [2025-02-26T09:22:35.100Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Wed, 26 Feb 2025 09:22:21 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"keep-alive","set-cookie":["zalb_3a750b85f1=ed010f63633be60a322039283f31a645; Path=/; Secure; HttpOnly","ZD_CSRF_TOKEN=2701ba82-8eeb-4924-a07a-8c4691b6fa6f;path=/;SameSite=None;Secure;priority=high","_zcsr_tmp=2701ba82-8eeb-4924-a07a-8c4691b6fa6f;path=/;SameSite=Strict;Secure;priority=high"],"x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
