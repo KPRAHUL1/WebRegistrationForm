@@ -1,40 +1,35 @@
-// pages/AdminDashboard.js
 import React, { useState, useEffect } from 'react';
-import { 
-  FaUsers, 
-  FaChalkboardTeacher, 
-  FaBook, 
-  FaBriefcase, 
+import {
+  FaUsers,
+  FaChalkboardTeacher,
+  FaBook,
+  FaBriefcase,
   FaSignOutAlt
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import WorkshopManagement from '../components/Workshop/WorkshopManagementSystem';
-import { workshopService } from '../api/WorkshopApi';
+import CourseManagement from '../components/Courses/CourseManagemnt';
+import { useDashboardData } from '../hooks/useDashboardData'; // Import the custom hook
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [admin, setAdmin] = useState(null);
   const [activeTab, setActiveTab] = useState('workshops');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Consolidated state for all data
-  const [dashboardData, setDashboardData] = useState({
-    workshops: [],
-    workshopRegistrations: [
-      { id: 1, name: 'Aarav Sharma', email: 'aarav@example.com', phone: '9876543210', workshop: 'Web Development Workshop', date: '2025-08-01', paymentProof: 'proof1.jpg', status: 'Confirmed' },
-      { id: 2, name: 'Priya Patel', email: 'priya@example.com', phone: '8765432109', workshop: 'Data Science Workshop', date: '2025-08-05', paymentProof: 'proof2.jpg', status: 'Pending' },
-      { id: 3, name: 'Rohan Mehta', email: 'rohan@example.com', phone: '7654321098', workshop: 'Web Development Workshop', date: '2025-08-02', paymentProof: 'proof3.jpg', status: 'Confirmed' }
-    ],
-    stats: {
-      workshops: 0,
-      courses: 8, // Placeholder
-      internships: 5, // Placeholder
-      registrations: 125 // Placeholder
-    }
-  });
+  // Use the custom hook for all data management
+  const {
+    dashboardData,
+    isLoading,
+    error,
+    refetch,
+    handleUpdateWorkshop,
+    handleCreateWorkshop,
+    handleUpdateCourse,
+    handleCreateCourse,
+    handleDeleteCourse,
+    handleArchiveCourse,
+  } = useDashboardData();
 
-  // --- EFFECTS ---
   useEffect(() => {
     const adminData = localStorage.getItem('adminUser');
     if (!adminData) {
@@ -42,88 +37,66 @@ const AdminDashboard = () => {
       return;
     }
     setAdmin(JSON.parse(adminData));
-    
-    const fetchDashboardData = async () => {
-      try {
-        const workshopsData = await workshopService.getWorkshops();
-        setDashboardData(prevData => ({
-          ...prevData,
-          workshops: workshopsData,
-          stats: {
-            ...prevData.stats,
-            workshops: workshopsData.length,
-          }
-        }));
-        setError(null);
-      } catch (err) {
-        console.error("Failed to fetch dashboard data:", err);
-        setError("Failed to load dashboard data. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchDashboardData();
   }, [navigate]);
 
-  // --- HANDLER FUNCTIONS ---
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     navigate('/admin/login');
   };
 
-  const handleUpdateWorkshop = (updatedWorkshop) => {
-    setDashboardData(prevData => ({
-      ...prevData,
-      workshops: prevData.workshops.map(ws => 
-        (ws.id === updatedWorkshop.id ? updatedWorkshop : ws)
-      ),
-    }));
-  };
-
-  const handleCreateWorkshop = async (newWorkshop) => {
-    // Note: The mock token logic is temporary and should be handled by a proper auth system
-    localStorage.setItem('adminToken', 'mock_admin_token');
-    try {
-      const createdWorkshop = await workshopService.createWorkshop(newWorkshop);
-      setDashboardData(prevData => ({
-        ...prevData,
-        workshops: [...prevData.workshops, createdWorkshop],
-        stats: {
-          ...prevData.stats,
-          workshops: prevData.stats.workshops + 1,
-        }
-      }));
-    } catch (error) {
-      console.error("Error creating workshop:", error);
-    } finally {
-      localStorage.removeItem('adminToken');
-    }
-  };
-
-  // --- RENDER LOGIC ---
   const renderActiveTabContent = () => {
     if (isLoading) {
-      return <div className="text-center py-10 text-gray-500">Loading dashboard data...</div>;
+      return (
+        <div className="text-center py-10">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <p className="mt-2 text-gray-500">Loading dashboard data...</p>
+        </div>
+      );
     }
+    
     if (error) {
-      return <div className="text-center py-10 text-red-500">{error}</div>;
+      return (
+        <div className="text-center py-10">
+          <p className="text-red-500 mb-4">{error}</p>
+          <button
+            onClick={refetch}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            Retry
+          </button>
+        </div>
+      );
     }
+
     switch (activeTab) {
       case 'workshops':
         return (
-          <WorkshopManagement 
-            workshops={dashboardData.workshops} 
+          <WorkshopManagement
+            workshops={dashboardData.workshops}
             workshopRegistrations={dashboardData.workshopRegistrations}
-            onUpdateWorkshop={handleUpdateWorkshop} 
+            onUpdateWorkshop={handleUpdateWorkshop}
             onCreateWorkshop={handleCreateWorkshop}
           />
         );
       case 'courses':
-        return <div className="text-center py-10 text-gray-500">Course Management Component will be here.</div>;
+        return (
+          <CourseManagement
+            courses={dashboardData.courses}
+            courseRegistrations={dashboardData.courseRegistrations}
+            onUpdateCourse={handleUpdateCourse}
+            onCreateCourse={handleCreateCourse}
+            onDeleteCourse={handleDeleteCourse}
+            onArchiveCourse={handleArchiveCourse}
+          />
+        );
       case 'internships':
-        return <div className="text-center py-10 text-gray-500">Internship Management Component will be here.</div>;
+        return (
+          <div className="text-center py-10 text-gray-500">
+            <FaBriefcase className="mx-auto h-12 w-12 mb-4" />
+            <p>Internship Management Component will be implemented here.</p>
+          </div>
+        );
       default:
         return null;
     }
@@ -146,7 +119,7 @@ const AdminDashboard = () => {
             <span className="text-gray-700 hidden sm:block">Welcome, {admin.name}</span>
             <button
               onClick={handleLogout}
-              className="flex items-center text-sm text-gray-500 hover:text-indigo-600"
+              className="flex items-center text-sm text-gray-500 hover:text-indigo-600 transition-colors"
             >
               <FaSignOutAlt className="mr-1" /> Logout
             </button>
@@ -155,6 +128,7 @@ const AdminDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-5 md:grid-cols-4 mb-8">
           {Object.entries(dashboardData.stats).map(([key, value]) => {
             const iconMap = {
@@ -170,7 +144,7 @@ const AdminDashboard = () => {
               registrations: 'bg-blue-500',
             };
             const title = key.charAt(0).toUpperCase() + key.slice(1);
-            
+
             return (
               <div key={key} className="bg-white overflow-hidden shadow rounded-lg p-5">
                 <div className="flex items-center">
@@ -189,28 +163,29 @@ const AdminDashboard = () => {
           })}
         </div>
 
+        {/* Main Content */}
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 sm:px-6">
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                <button
-                  onClick={() => setActiveTab('workshops')}
-                  className={`${activeTab === 'workshops' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                >
-                  Workshops
-                </button>
-                <button
-                  onClick={() => setActiveTab('courses')}
-                  className={`${activeTab === 'courses' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                >
-                  Courses
-                </button>
-                <button
-                  onClick={() => setActiveTab('internships')}
-                  className={`${activeTab === 'internships' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                >
-                  Internships
-                </button>
+                {[
+                  { key: 'workshops', label: 'Workshops', icon: FaChalkboardTeacher },
+                  { key: 'courses', label: 'Courses', icon: FaBook },
+                  { key: 'internships', label: 'Internships', icon: FaBriefcase }
+                ].map(({ key, label, icon: Icon }) => (
+                  <button
+                    key={key}
+                    onClick={() => setActiveTab(key)}
+                    className={`${
+                      activeTab === key
+                        ? 'border-indigo-500 text-indigo-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{label}</span>
+                  </button>
+                ))}
               </nav>
             </div>
           </div>

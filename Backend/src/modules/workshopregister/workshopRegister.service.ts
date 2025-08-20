@@ -18,7 +18,7 @@ export async function registerForWorkshop(payload: any) {
     // 2. Create workshop registration
     return await tx.workshopRegistration.create({
       data: {
-        fullName: payload.fullName,
+        name: payload.name,
         email: payload.email,
         phone: payload.phone,
         college: payload.collegeName, // Note: mapping collegeName to college
@@ -51,7 +51,6 @@ export async function getWorkshopById(id: string) {
     }
   });
 }
-
 export async function getActiveWorkshops() {
   return await db.workshop.findMany({
     where: { isActive: true, isArchived: false },
@@ -86,5 +85,47 @@ export async function verifyPayment(registrationId: string) {
         }
       }
     }
+  });
+}
+
+export async function getAllRegistrations() {
+  return await db.workshopRegistration.findMany({
+    include: {
+      workshop: {
+        select: {
+          title: true,
+          id: true
+        }
+      },
+      payment: {
+        select: {
+          status: true,
+          upiId:true,
+          paymentProof: true
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+}
+
+export async function getRegistrationsByWorkshopId(workshopId: string) {
+  return await db.workshopRegistration.findMany({
+    where: { workshopId },
+    include: {
+      workshop: {
+        select: {
+          title: true,
+          id: true
+        }
+      },
+      payment: {
+        select: {
+          status: true,
+          paymentProof: true
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
   });
 }

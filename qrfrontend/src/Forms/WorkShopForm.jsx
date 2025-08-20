@@ -171,7 +171,7 @@ const handleSubmit = async (e) => {
   }
 
   // UPI QR code value with dynamic price
-  const upiValue = `upi://pay?pa=your-upi-id@bank&pn=Your Name&am=${workshop.price}&cu=INR`;
+  const upiValue = `upi://pay?pa=kprahul1143@okaxis&pn=Roriri&am=${workshop.price}&cu=INR`;
 
   return (
     <motion.div

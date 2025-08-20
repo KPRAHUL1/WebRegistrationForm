@@ -4,8 +4,8 @@ import { FaEye, FaEyeSlash, FaUserShield, FaSignInAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@gmail.com'); // Pre-filled for demo
+  const [password, setPassword] = useState('admin123'); // Pre-filled for demo
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -17,8 +17,7 @@ const AdminLogin = () => {
     setError('');
     
     try {
-      // Simulate API call - replace with your actual API endpoint
-      const response = await fetch('/api/admin/login', {
+      const response = await fetch('http://localhost:7700/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,25 +25,26 @@ const AdminLogin = () => {
         body: JSON.stringify({ email, password }),
       });
       
-      // For demo purposes, we'll simulate a successful login
-      // In a real app, you would use the actual response
-      if (email && password) {
-        // Store token in localStorage
-        localStorage.setItem('adminToken', 'demo-token-123');
+      const data = await response.json();
+      
+      if (response.ok && data.admin && data.token) {
+        // Store token and admin data in localStorage
+        localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminUser', JSON.stringify({
-          id: '1',
-          email: email,
-          name: 'Admin User',
-          role: 'ADMIN'
+          id: data.admin.id,
+          email: data.admin.email,
+          name: data.admin.name,
+          role: data.admin.role
         }));
         
         // Redirect to dashboard
         navigate('/admin/dashboard');
       } else {
-        setError('Please enter both email and password');
+        setError(data.error || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      console.error('Login error:', err);
+      setError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -157,9 +157,9 @@ const AdminLogin = () => {
         </form>
         
         <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-800 mb-2">Demo Credentials:</h3>
-          <p className="text-xs text-gray-600">Email: admin@example.com</p>
-          <p className="text-xs text-gray-600">Password: any password will work for demo</p>
+          <h3 className="text-sm font-medium text-gray-800 mb-2">Default Admin Credentials:</h3>
+          <p className="text-xs text-gray-600">Email: admin@gmail.com</p>
+          <p className="text-xs text-gray-600">Password: admin123</p>
         </div>
       </div>
     </div>

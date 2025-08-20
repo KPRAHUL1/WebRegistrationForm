@@ -32,11 +32,13 @@ const workshopApi = require("./modules/workshop/workshop.route");
 const paymentApi = require("./modules/payment/payment.route");
 const adminApi = require("./modules/admin/admin.route");
 const registerApi = require("./modules/workshopregister/workshopRegister.route");
+const courseApi = require("./modules/courses/course.route");
 
 app.use("/api/admin", adminApi);
 app.use("/api/workshop", workshopApi);
 app.use("/api/payments", paymentApi);
 app.use("/api/register",registerApi)
+app.use("/api/courses",courseApi)
 
 
 // Error handling middleware

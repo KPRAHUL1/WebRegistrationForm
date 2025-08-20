@@ -12,7 +12,7 @@ export interface WorkshopCreateInput {
 }
 
 export interface WorkshopRegistrationInput {
-  fullName: string;
+  name: string;
   email: string;
   phone: string;
   college?: string;

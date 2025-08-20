@@ -8,13 +8,13 @@ datasource db {
 }
 
 model Admin {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      AdminRole @default(ADMIN)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String      @id @default(cuid())
+  email       String      @unique
+  password    String
+  name        String
+  role        AdminRole   @default(ADMIN)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   // Relations
   workshops   Workshop[]
@@ -31,134 +31,130 @@ enum AdminRole {
 }
 
 model Workshop {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  startDate   DateTime
-  endDate     DateTime
-  startTime   String
-  endTime     String
-  price       Float
-  maxSeats    Int      @default(50)
-  isActive    Boolean  @default(true)
-  isArchived  Boolean  @default(false)
-  formFields  Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String?
-  admin       Admin?    @relation(fields: [createdBy], references: [id])
+  id           String               @id @default(cuid())
+  title        String
+  description  String?
+  startDate    DateTime
+  endDate      DateTime
+  startTime    String
+  endTime      String
+  price        Float
+  maxSeats     Int                  @default(50)
+  isActive     Boolean              @default(true)
+  isArchived   Boolean              @default(false)
+  formFields   Json?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  createdBy    String?
+  admin        Admin?               @relation(fields: [createdBy], references: [id])
   registrations WorkshopRegistration[]
-  payments      Payment[]
+  payments     Payment[]
 
   @@map("workshops")
 }
 
 model Course {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  startDate   DateTime
-  endDate     DateTime
-  duration    String
-  price       Float    @default(0)
-  maxSeats    Int      @default(100)
-  isActive    Boolean  @default(true)
-  isArchived  Boolean  @default(false)
-  formFields  Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String
-  admin       Admin    @relation(fields: [createdBy], references: [id])
+  id           String               @id @default(cuid())
+  title        String
+  description  String?
+  startDate    DateTime
+  endDate      DateTime
+  duration     String
+  price        Float                @default(0)
+  maxSeats     Int                  @default(100)
+  isActive     Boolean              @default(true)
+  isArchived   Boolean              @default(false)
+  formFields   Json?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  createdBy    String
+  admin        Admin                @relation(fields: [createdBy], references: [id])
   registrations CourseRegistration[]
-  payments      Payment[]
+  payments     Payment[]
 
   @@map("courses")
 }
 
 model Internship {
-  id          String   @id @default(cuid())
+  id          String                @id @default(cuid())
   title       String
   description String?
   startDate   DateTime
   endDate     DateTime
   duration    String
-  stipend     Float    @default(0)
-  maxSeats    Int      @default(20)
-  isActive    Boolean  @default(true)
-  isArchived  Boolean  @default(false)
+  stipend     Float                 @default(0)
+  maxSeats    Int                   @default(20)
+  isActive    Boolean               @default(true)
+  isArchived  Boolean               @default(false)
   formFields  Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
   createdBy   String
-  admin       Admin    @relation(fields: [createdBy], references: [id])
+  admin       Admin                 @relation(fields: [createdBy], references: [id])
   registrations InternshipRegistration[]
 
   @@map("internships")
 }
 
 model WorkshopRegistration {
-  id          String   @id @default(cuid())
-  fullName    String
-  email       String
-  phone       String
-  college     String?
-  year        String?
-  branch      String?
-  experience  String?
-  formData    Json?
-  status      RegistrationStatus @default(PENDING)
-  workshopId  String
-  workshop    Workshop @relation(fields: [workshopId], references: [id])
-  paymentId   String?  @unique
-  payment     Payment? @relation(fields: [paymentId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String               @id @default(cuid())
+  name         String
+  email        String
+  phone        String
+  college      String?
+  year         String?
+  branch       String?
+  experience   String?
+  formData     Json?
+  status       RegistrationStatus   @default(PENDING)
+  workshopId   String
+  workshop     Workshop             @relation(fields: [workshopId], references: [id])
+  paymentId    String?              @unique
+  payment      Payment?             @relation(fields: [paymentId], references: [id])
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
   paymentScreenshot String?
+
   @@index([email])
   @@index([phone])
   @@map("workshop_registrations")
 }
 
 model CourseRegistration {
-  id          String   @id @default(cuid())
-  fullName    String
-  email       String
-  phone       String
-  college     String?
-  year        String?
-  branch      String?
-  experience  String?
-  formData    Json?
-  status      RegistrationStatus @default(PENDING)
+  id          String      @id @default(cuid())
   courseId    String
-  course      Course @relation(fields: [courseId], references: [id])
-  paymentId   String?  @unique
-  payment     Payment? @relation(fields: [paymentId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([email])
-  @@index([phone])
+  name        String      // Add this field (or rename from fullName if that exists)
+  email       String
+  phone       String?
+  status      String      @default("pending") // pending, confirmed, cancelled
+  formData    Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  paymentId   String?     @unique
+  
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  payment     Payment?    @relation(fields: [paymentId], references: [id])
+  
+  @@unique([courseId, email]) // Prevent duplicate registrations
   @@map("course_registrations")
 }
-
 model InternshipRegistration {
-  id          String   @id @default(cuid())
-  fullName    String
-  email       String
-  phone       String
-  college     String
-  year        String
-  branch      String
-  cgpa        Float?
-  resume      String?
-  coverLetter String?
-  formData    Json?
-  status      RegistrationStatus @default(PENDING)
-  internshipId String
-  internship   Internship @relation(fields: [internshipId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String             @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  college       String
+  year          String
+  branch        String
+  cgpa          Float?
+  resume        String?
+  coverLetter   String?
+  formData      Json?
+  status        RegistrationStatus @default(PENDING)
+  internshipId  String
+  internship    Internship         @relation(fields: [internshipId], references: [id])
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 
   @@index([email])
   @@index([phone])
@@ -173,25 +169,27 @@ enum RegistrationStatus {
 }
 
 model Payment {
-  id              String        @id @default(cuid())
-  amount          Float
-  currency        String        @default("INR")
-  paymentMethod   PaymentMethod
-  upiId           String?
-  transactionId   String?       @unique
-  status          PaymentStatus @default(PENDING)
-  statusReason    String?
-  paymentProof    String?       // Add this field
-  verifiedAt      DateTime?
-  workshopId      String?
-  workshop        Workshop?     @relation(fields: [workshopId], references: [id])
-  courseId        String?
-  course          Course?       @relation(fields: [courseId], references: [id])
+  id                  String          @id @default(cuid())
+  amount              Float
+  currency            String          @default("INR")
+  paymentMethod       PaymentMethod
+  upiId               String?
+  transactionId       String?         @unique
+  status              PaymentStatus   @default(PENDING)
+  statusReason        String?
+  paymentProof        String?
+  verifiedAt          DateTime?
+  workshopId          String?
+  workshop            Workshop?       @relation(fields: [workshopId], references: [id])
+  courseId            String?
+  course              Course?         @relation(fields: [courseId], references: [id])
+  workshopRegistrationId String?      @unique
+  courseRegistrationId   String?      @unique
   workshopRegistration WorkshopRegistration?
-  courseRegistration   CourseRegistration?
-  paymentData     Json?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  courseRegistration CourseRegistration?
+  paymentData         Json?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 
   @@map("payments")
 }
@@ -211,16 +209,16 @@ enum PaymentStatus {
 }
 
 model EmailLog {
-  id          String    @id @default(cuid())
-  to          String
-  subject     String
-  template    String
-  status      EmailStatus @default(PENDING)
-  error       String?
-  registrationId String?
-  registrationType String? @default("workshop")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                String       @id @default(cuid())
+  to                String
+  subject           String
+  template          String
+  status            EmailStatus  @default(PENDING)
+  error             String?
+  registrationId    String?
+  registrationType  String?      @default("workshop")
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   @@map("email_logs")
 }
@@ -232,14 +230,14 @@ enum EmailStatus {
 }
 
 model FormSession {
-  id          String   @id @default(cuid())
-  sessionId   String   @unique
-  formType    String
-  programId   String
-  formData    Json
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  expiresAt   DateTime
+  id           String     @id @default(cuid())
+  sessionId    String     @unique
+  formType     String
+  programId    String
+  formData     Json
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  expiresAt    DateTime
 
   @@map("form_sessions")
 }

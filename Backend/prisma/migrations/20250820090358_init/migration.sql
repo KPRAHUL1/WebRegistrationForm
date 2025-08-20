@@ -42,7 +42,7 @@ CREATE TABLE "workshops" (
     "formFields" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "createdBy" TEXT NOT NULL,
+    "createdBy" TEXT,
 
     CONSTRAINT "workshops_pkey" PRIMARY KEY ("id")
 );
@@ -90,7 +90,7 @@ CREATE TABLE "internships" (
 -- CreateTable
 CREATE TABLE "workshop_registrations" (
     "id" TEXT NOT NULL,
-    "fullName" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "college" TEXT,
@@ -111,19 +111,15 @@ CREATE TABLE "workshop_registrations" (
 -- CreateTable
 CREATE TABLE "course_registrations" (
     "id" TEXT NOT NULL,
-    "fullName" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
-    "college" TEXT,
-    "year" TEXT,
-    "branch" TEXT,
-    "experience" TEXT,
-    "formData" JSONB,
-    "status" "RegistrationStatus" NOT NULL DEFAULT 'PENDING',
     "courseId" TEXT NOT NULL,
-    "paymentId" TEXT,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "formData" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "paymentId" TEXT,
 
     CONSTRAINT "course_registrations_pkey" PRIMARY KEY ("id")
 );
@@ -131,7 +127,7 @@ CREATE TABLE "course_registrations" (
 -- CreateTable
 CREATE TABLE "internship_registrations" (
     "id" TEXT NOT NULL,
-    "fullName" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "college" TEXT NOT NULL,
@@ -163,6 +159,8 @@ CREATE TABLE "payments" (
     "verifiedAt" TIMESTAMP(3),
     "workshopId" TEXT,
     "courseId" TEXT,
+    "workshopRegistrationId" TEXT,
+    "courseRegistrationId" TEXT,
     "paymentData" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -216,10 +214,7 @@ CREATE INDEX "workshop_registrations_phone_idx" ON "workshop_registrations"("pho
 CREATE UNIQUE INDEX "course_registrations_paymentId_key" ON "course_registrations"("paymentId");
 
 -- CreateIndex
-CREATE INDEX "course_registrations_email_idx" ON "course_registrations"("email");
-
--- CreateIndex
-CREATE INDEX "course_registrations_phone_idx" ON "course_registrations"("phone");
+CREATE UNIQUE INDEX "course_registrations_courseId_email_key" ON "course_registrations"("courseId", "email");
 
 -- CreateIndex
 CREATE INDEX "internship_registrations_email_idx" ON "internship_registrations"("email");
@@ -231,10 +226,16 @@ CREATE INDEX "internship_registrations_phone_idx" ON "internship_registrations"(
 CREATE UNIQUE INDEX "payments_transactionId_key" ON "payments"("transactionId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "payments_workshopRegistrationId_key" ON "payments"("workshopRegistrationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "payments_courseRegistrationId_key" ON "payments"("courseRegistrationId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "form_sessions_sessionId_key" ON "form_sessions"("sessionId");
 
 -- AddForeignKey
-ALTER TABLE "workshops" ADD CONSTRAINT "workshops_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "admins"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "workshops" ADD CONSTRAINT "workshops_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "admins"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "courses" ADD CONSTRAINT "courses_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "admins"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -249,7 +250,7 @@ ALTER TABLE "workshop_registrations" ADD CONSTRAINT "workshop_registrations_work
 ALTER TABLE "workshop_registrations" ADD CONSTRAINT "workshop_registrations_paymentId_fkey" FOREIGN KEY ("paymentId") REFERENCES "payments"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "course_registrations" ADD CONSTRAINT "course_registrations_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "courses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "course_registrations" ADD CONSTRAINT "course_registrations_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "courses"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "course_registrations" ADD CONSTRAINT "course_registrations_paymentId_fkey" FOREIGN KEY ("paymentId") REFERENCES "payments"("id") ON DELETE SET NULL ON UPDATE CASCADE;

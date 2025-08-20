@@ -3,12 +3,38 @@ const router = express.Router();
 import { uploadFileMiddleware } from "../../shared/lib/utils/fileUpload";
         import {
           registerForWorkshop,
-          getWorkshopById, getActiveWorkshops,
+          getWorkshopById, getActiveWorkshops,getRegistrationsByWorkshopId,getAllRegistrations,verifyPayment
         } from "./workshopRegister.service"
 
         
 // Create workshop
+router.get("/registrations", async (req: any, res: any) => {
+  try {
+    const registrations = await getAllRegistrations();
+    
+    // Transform data to match frontend expectations
+    const transformedRegistrations = registrations.map(reg => ({
+      id: reg.id,
+      name: reg.name,
+      email: reg.email,
+      phone: reg.phone,
+      workshop: reg.workshop.title,
+      workshopId: reg.workshop.id,
+      upiId:reg.payment?.upiId,
+      paymentProof: reg.paymentScreenshot,
+      status: reg.payment?.status || 'PENDING',
+      college: reg.college,
+      branch: reg.branch,
+      year: reg.year,
+      createdAt: reg.createdAt
+    }));
 
+    res.json(transformedRegistrations);
+  } catch (error) {
+    console.error("Error fetching registrations:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 // Register for workshop
 router.post("/:id/register", async (req: any, res: any) => {
   try {
@@ -96,4 +122,38 @@ router.get('/workshop/active', async (req: any, res: any) => {
 // Delete workshop
 
 
+// Get registrations by specific workshop
+router.get("/registrations/:workshopId", async (req: any, res: any) => {
+  try {
+    const registrations = await getRegistrationsByWorkshopId(req.params.workshopId);
+    
+    const transformedRegistrations = registrations.map(reg => ({
+      id: reg.id,
+      name: reg.name,
+      email: reg.email,
+      phone: reg.phone,
+      workshop: reg.workshop.title,
+      paymentProof: reg.paymentScreenshot,
+      status: reg.payment?.status || 'PENDING',
+      college: reg.college,
+      branch: reg.branch,
+      year: reg.year,
+      createdAt: reg.createdAt
+    }));
+
+    res.json(transformedRegistrations);
+  } catch (error) {
+    console.error("Error fetching workshop registrations:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+router.patch("/registrations/:id/verify", async (req: any, res: any) => {
+  try {
+    const verifiedRegistration = await verifyPayment(req.params.id);
+    res.json(verifiedRegistration);
+  } catch (error) {
+    console.error("Error verifying payment:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 module.exports = router;

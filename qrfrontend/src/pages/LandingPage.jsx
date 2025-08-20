@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { logo } from "../assets/logo/logo";
 
 const options = [
+   { label: "-Select Program-", value: "" },
   { label: "Workshop", value: "workshop" },
   { label: "Courses", value: "courses" },
   { label: "Internship", value: "internship" },

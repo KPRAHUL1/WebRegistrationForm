@@ -57,7 +57,8 @@ const WorkshopList = ({ workshops, handleEdit }) => {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seats</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -69,7 +70,8 @@ const WorkshopList = ({ workshops, handleEdit }) => {
               <tr key={ws?.id ?? idx} >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{ws.title}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(ws.startDate).toLocaleDateString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ws.seats}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(ws.endDate).toLocaleDateString()}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ws.maxSeats}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{ws.price}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${ws.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { generateJwtToken } from "../../shared/lib/utils/jwt";
 import { JwtPayload } from "../../shared/lib/models/jwtModel";
 
+// Admin login
 export async function adminLogin(payload: { email: string; password: string }) {
   // 1. Find admin by email
   const admin = await db.admin.findUnique({
@@ -19,7 +20,7 @@ export async function adminLogin(payload: { email: string; password: string }) {
     throw new Error("Invalid credentials");
   }
 
-  // 3. Generate JWT token using your existing utility
+  // 3. Generate JWT token
   const tokenPayload: JwtPayload = {
     id: admin.id,
     email: admin.email,
@@ -31,11 +32,13 @@ export async function adminLogin(payload: { email: string; password: string }) {
   const { password: _, ...adminWithoutPassword } = admin;
 
   return {
+    message: "Login successful",
     admin: adminWithoutPassword,
     token
   };
 }
 
+// Get profile by ID
 export async function getAdminProfile(id: string) {
   return await db.admin.findUnique({
     where: { id },
@@ -46,6 +49,25 @@ export async function getAdminProfile(id: string) {
       role: true,
       createdAt: true,
       updatedAt: true,
+    },
+  });
+}
+
+// Optional: seed/register a new admin (only for setup)
+export async function createAdmin(payload: { name: string; email: string; password: string; role?: string }) {
+  const existing = await db.admin.findUnique({
+    where: { email: payload.email },
+  });
+  if (existing) throw new Error("Admin already exists");
+
+  const hashed = await bcrypt.hash(payload.password, 10);
+
+  return await db.admin.create({
+    data: {
+      name: payload.name,
+      email: payload.email,
+      password: hashed,
+      role: (payload.role as any) || "ADMIN",
     },
   });
 }
