@@ -73,7 +73,8 @@ const CourseManagement = ({
           Manage Courses ({courses?.length || 0})
         </SubNavButton>
         <SubNavButton activeView={view} targetView="registrations" setView={setView}>
-          View Registrations ({courseRegistrations?.length || 0})
+          View Registrations
+         {/* ({courseRegistrations?.length || 0}) */}
         </SubNavButton>
         <SubNavButton activeView={view} targetView="create" setView={setView}>
           Create New Course

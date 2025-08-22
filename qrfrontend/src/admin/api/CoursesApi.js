@@ -115,4 +115,25 @@ export const courseService = {
       throw error;
     }
   },
+  getRegistrations : async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/courses/registrations`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add authorization headers if needed
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.data || data; // Handle both {success: true, data: [...]} and direct array responses
+  } catch (error) {
+    console.error('Error fetching course registrations:', error);
+    throw error;
+  }
+}
 };

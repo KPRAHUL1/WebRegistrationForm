@@ -6,7 +6,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
 const WorkShopForm = () => {
-  const { workshopId } = useParams();
+  const { id:workshopId } = useParams();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({

@@ -1,4 +1,4 @@
-// WorkshopsPage.js
+// InternshipsPage.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -25,26 +25,26 @@ const itemVariants = {
   },
 };
 
-const WorkshopsPage = () => {
-  const [workshops, setWorkshops] = useState([]);
+const InternshipsPage = () => {
+  const [internships, setInternships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchWorkshops = async () => {
+    const fetchInternships = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await axios.get("http://localhost:7700/api/register/workshop/active");
-        setWorkshops(response.data);
+        const response = await axios.get("http://localhost:7700/api/internship/active");
+        setInternships(response.data);
       } catch (err) {
-        setError(err.message || "Failed to fetch workshops");
-        console.error("Error fetching workshops:", err);
+        setError(err.message || "Failed to fetch internships");
+        console.error("Error fetching internships:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchWorkshops();
+    fetchInternships();
   }, []);
 
   if (loading) {
@@ -52,7 +52,7 @@ const WorkshopsPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
         <div className="text-center">
           <div className="spinner border-4 border-purple-500 border-t-transparent rounded-full w-12 h-12 animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-400">Loading workshops...</p>
+          <p className="mt-4 text-gray-400">Loading internships...</p>
         </div>
       </div>
     );
@@ -83,7 +83,7 @@ const WorkshopsPage = () => {
         transition={{ duration: 0.5 }}
         className="text-4xl md:text-5xl font-extrabold text-center mb-10"
       >
-        Available Workshops
+        Available Internships
       </motion.h1>
 
       <motion.div
@@ -92,35 +92,35 @@ const WorkshopsPage = () => {
         animate="visible"
         className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl w-full"
       >
-        {workshops.length > 0 ? (
-          workshops.map((workshop) => (
+        {internships.length > 0 ? (
+          internships.map((internship) => (
             <motion.div
-              key={workshop.id}
+              key={internship.id}
               variants={itemVariants}
               className="bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col justify-between transform hover:scale-105 transition-transform duration-300"
             >
               <div>
                 <h3 className="text-2xl font-bold text-purple-400 mb-2">
-                  {workshop.title}
+                  {internship.title}
                 </h3>
-                <p className="text-gray-400 mb-4">{workshop.description}</p>
+                <p className="text-gray-400 mb-4">{internship.description}</p>
                 <div className="space-y-2 text-sm text-gray-300">
                   <p>
                     <span className="font-semibold text-white">Date:</span>{" "}
-                    {new Date(workshop.startDate).toLocaleDateString()}
+                    {new Date(internship.startDate).toLocaleDateString()}
                   </p>
                   <p>
                     <span className="font-semibold text-white">Time:</span>{" "}
-                    {workshop.startTime} - {workshop.endTime}
+                    {internship.startTime} - {internship.endTime}
                   </p>
                   <p>
                     <span className="font-semibold text-white">Price:</span> ₹
-                    {workshop.price}
+                    {internship.price}
                   </p>
                 </div>
               </div>
               <Link
-                to={`/register/workshop/${workshop.id}`}
+                to={`/register/internship/${internship.id}`}
                 className="mt-6 w-full text-center bg-purple-600 text-white py-3 px-6 rounded-lg font-bold hover:bg-purple-700 transition-colors duration-300"
               >
                 Register
@@ -129,7 +129,7 @@ const WorkshopsPage = () => {
           ))
         ) : (
           <p className="col-span-full text-center text-gray-500">
-            No workshops are currently available.
+            No internships are currently available.
           </p>
         )}
       </motion.div>
@@ -137,4 +137,4 @@ const WorkshopsPage = () => {
   );
 };
 
-export default WorkshopsPage;
+export default InternshipsPage;

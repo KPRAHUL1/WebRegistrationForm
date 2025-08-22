@@ -295,7 +295,7 @@ export async function createCourseRegistration(payload: any) {
   return await db.courseRegistration.create({
     data: {
       courseId: payload.courseId,
-      name: payload.name,  // Use fullName instead of name
+      name: payload.fullName,  // Use fullName instead of name
       email: payload.email,
       phone: payload.phone,
       formData: payload.formData,
@@ -361,5 +361,11 @@ export async function deleteCourseRegistration(id: string) {
 
   return await db.courseRegistration.delete({
     where: { id }
+  });
+}
+export async function getActiveCourses() {
+  return await db.course.findMany({
+    where: { isActive: true, isArchived: false },
+    orderBy: { startDate: 'asc' }
   });
 }

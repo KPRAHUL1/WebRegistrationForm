@@ -156,11 +156,11 @@ const AdminLogin = () => {
           </div>
         </form>
         
-        <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+        {/* <div className="mt-6 bg-gray-50 p-4 rounded-lg">
           <h3 className="text-sm font-medium text-gray-800 mb-2">Default Admin Credentials:</h3>
           <p className="text-xs text-gray-600">Email: admin@gmail.com</p>
           <p className="text-xs text-gray-600">Password: admin123</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

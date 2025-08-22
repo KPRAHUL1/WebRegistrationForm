@@ -10,10 +10,14 @@ import { useNavigate } from 'react-router-dom';
 import WorkshopManagement from '../components/Workshop/WorkshopManagementSystem';
 import CourseManagement from '../components/Courses/CourseManagemnt';
 import { useDashboardData } from '../hooks/useDashboardData'; // Import the custom hook
+import InternshipManagement from '../components/Internship/InternshipManagement';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [admin, setAdmin] = useState(null);
+  const [admin, setAdmin] = useState(() => {
+    const data = localStorage.getItem('adminUser');
+    return data ? JSON.parse(data) : null;
+  });
   const [activeTab, setActiveTab] = useState('workshops');
 
   // Use the custom hook for all data management
@@ -28,7 +32,13 @@ const AdminDashboard = () => {
     handleCreateCourse,
     handleDeleteCourse,
     handleArchiveCourse,
+    handleUpdateInternship,
+    handleCreateInternship
   } = useDashboardData();
+
+  // Debug logging - you can remove this later
+  console.log('Dashboard data:', dashboardData);
+  console.log('Internships:', dashboardData.internships);
 
   useEffect(() => {
     const adminData = localStorage.getItem('adminUser');
@@ -92,10 +102,12 @@ const AdminDashboard = () => {
         );
       case 'internships':
         return (
-          <div className="text-center py-10 text-gray-500">
-            <FaBriefcase className="mx-auto h-12 w-12 mb-4" />
-            <p>Internship Management Component will be implemented here.</p>
-          </div>
+          <InternshipManagement
+            internships={dashboardData.internships}
+            internshipRegistrations={dashboardData.internshipRegistrations}
+            onUpdateInternship={handleUpdateInternship}
+            onCreateInternship={handleCreateInternship}
+          />
         );
       default:
         return null;
@@ -130,7 +142,7 @@ const AdminDashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-5 md:grid-cols-4 mb-8">
-          {Object.entries(dashboardData.stats).map(([key, value]) => {
+          {Object.entries(dashboardData?.stats || {}).map(([key, value]) => {
             const iconMap = {
               workshops: <FaChalkboardTeacher className="h-6 w-6 text-white" />,
               courses: <FaBook className="h-6 w-6 text-white" />,
@@ -145,6 +157,9 @@ const AdminDashboard = () => {
             };
             const title = key.charAt(0).toUpperCase() + key.slice(1);
 
+            // Ensure value is a number, default to 0 if not
+            const displayValue = typeof value === 'number' ? value : 0;
+
             return (
               <div key={key} className="bg-white overflow-hidden shadow rounded-lg p-5">
                 <div className="flex items-center">
@@ -154,7 +169,7 @@ const AdminDashboard = () => {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">{title}</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">{value}</dd>
+                      <dd className="text-2xl font-semibold text-gray-900">{displayValue}</dd>
                     </dl>
                   </div>
                 </div>
@@ -171,7 +186,7 @@ const AdminDashboard = () => {
                 {[
                   { key: 'workshops', label: 'Workshops', icon: FaChalkboardTeacher },
                   { key: 'courses', label: 'Courses', icon: FaBook },
-                  { key: 'internships', label: 'Internships', icon: FaBriefcase }
+                  { key: 'internships', label: 'Internships', icon: FaBriefcase },
                 ].map(({ key, label, icon: Icon }) => (
                   <button
                     key={key}
