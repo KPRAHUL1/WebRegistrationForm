@@ -5,7 +5,7 @@ const QRPage = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="p-6 bg-white rounded-xl shadow-lg">
         <QRCodeCanvas
-          value="https://genzteam.netlify.app/register"
+          value="https://genzteam.netlify.app"
           size={200}
           level="H"
           fgColor="#7954FF"

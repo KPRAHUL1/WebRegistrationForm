@@ -1,48 +1,123 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { workshopService } from '../api/WorkshopApi';
 import { courseService } from '../api/CoursesApi';
+import { internshipService } from '../api/InternshipApi';
 
 export const useDashboardData = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isInitializedRef = useRef(false);
+  
   const [dashboardData, setDashboardData] = useState({
     workshops: [],
     workshopRegistrations: [],
     courses: [],
     courseRegistrations: [],
+    internships: [],
+    internshipRegistrations: [],
     stats: {
       workshops: 0,
       courses: 0,
-      internships: 5,
+      internships: 0,
       registrations: 0
     }
   });
 
   // Fetch dashboard data
   const fetchDashboardData = useCallback(async () => {
-    setIsLoading(true);
+    // Don't set loading if we already have data (prevents clearing on updates)
+    if (!isInitializedRef.current) {
+      setIsLoading(true);
+    }
     setError(null);
     
     try {
-      const [workshopsData, coursesData] = await Promise.all([
+      console.log('Fetching dashboard data...');
+      
+      // Fetch all data in parallel
+      const [
+        workshopsData, 
+        coursesData, 
+        internshipsData,
+        workshopRegistrationsData,
+        courseRegistrationsData,
+        internshipRegistrationsData
+      ] = await Promise.all([
         workshopService.getWorkshops(),
         courseService.getCourses(),
+        internshipService.getInternships(),
+        // Fetch registrations data
+        workshopService.getRegistrations(), // Assuming you have this method
+        courseService.getRegistrations(),   // Assuming you have this method
+        internshipService.getRegistrations() // Assuming you have this method
       ]);
 
-      // Calculate total registrations (you might need to fetch this separately)
-      const totalRegistrations = (workshopsData.length + coursesData.length) * 25; // Mock calculation
+      console.log('Raw API responses:', {
+        workshops: workshopsData,
+        courses: coursesData,
+        internships: internshipsData,
+        workshopRegistrations: workshopRegistrationsData,
+        courseRegistrations: courseRegistrationsData,
+        internshipRegistrations: internshipRegistrationsData
+      });
 
-      setDashboardData(prevData => ({
-        ...prevData,
-        workshops: workshopsData || [],
-        courses: coursesData || [],
+      // Handle different response structures
+      const workshops = Array.isArray(workshopsData) ? workshopsData : workshopsData?.data || [];
+      const courses = Array.isArray(coursesData) ? coursesData : coursesData?.data || [];
+      const internships = Array.isArray(internshipsData) ? internshipsData : internshipsData?.data || [];
+      
+      // Handle registration data structures
+      const workshopRegistrations = Array.isArray(workshopRegistrationsData) 
+        ? workshopRegistrationsData 
+        : workshopRegistrationsData?.data || [];
+      const courseRegistrations = Array.isArray(courseRegistrationsData) 
+        ? courseRegistrationsData 
+        : courseRegistrationsData?.data || [];
+      const internshipRegistrations = Array.isArray(internshipRegistrationsData) 
+        ? internshipRegistrationsData 
+        : internshipRegistrationsData?.data || [];
+
+      console.log('Processed data arrays:', {
+        workshops: workshops,
+        courses: courses,
+        internships: internships,
+        workshopRegistrations: workshopRegistrations,
+        courseRegistrations: courseRegistrations,
+        internshipRegistrations: internshipRegistrations
+      });
+
+      // Calculate total registrations from actual data
+      const totalRegistrations = workshopRegistrations.length + courseRegistrations.length + internshipRegistrations.length;
+
+      const newData = {
+        workshops: workshops,
+        courses: courses,
+        internships: internships,
+        workshopRegistrations: workshopRegistrations,
+        courseRegistrations: courseRegistrations,
+        internshipRegistrations: internshipRegistrations,
         stats: {
-          ...prevData.stats,
-          workshops: workshopsData?.length || 0,
-          courses: coursesData?.length || 0,
-          registrations: totalRegistrations,
+          workshops: workshops.length || 0,
+          courses: courses.length || 0,
+          internships: internships.length || 0,
+          registrations: totalRegistrations || 0,
         }
-      }));
+      };
+
+      console.log('Setting dashboard data:', newData);
+      
+      // Use functional update to ensure we don't lose any existing data
+      setDashboardData(prevData => {
+        console.log('Previous data:', prevData);
+        const updatedData = {
+          ...prevData,
+          ...newData
+        };
+        console.log('Updated data:', updatedData);
+        return updatedData;
+      });
+      
+      isInitializedRef.current = true;
     } catch (err) {
       console.error("Failed to fetch dashboard data:", err);
       setError(`Failed to load dashboard data: ${err.message}`);
@@ -53,12 +128,17 @@ export const useDashboardData = () => {
 
   // Workshop handlers
   const handleUpdateWorkshop = useCallback((updatedWorkshop) => {
-    setDashboardData(prevData => ({
-      ...prevData,
-      workshops: prevData.workshops.map(ws =>
-        ws.id === updatedWorkshop.id ? updatedWorkshop : ws
-      ),
-    }));
+    console.log('Updating workshop:', updatedWorkshop);
+    setDashboardData(prevData => {
+      const newData = {
+        ...prevData,
+        workshops: prevData.workshops.map(ws =>
+          ws.id === updatedWorkshop.id ? updatedWorkshop : ws
+        ),
+      };
+      console.log('Workshop updated, new data:', newData);
+      return newData;
+    });
   }, []);
 
   const handleCreateWorkshop = useCallback(async (newWorkshop) => {
@@ -81,12 +161,17 @@ export const useDashboardData = () => {
 
   // Course handlers
   const handleUpdateCourse = useCallback((updatedCourse) => {
-    setDashboardData(prevData => ({
-      ...prevData,
-      courses: prevData.courses.map(course =>
-        course.id === updatedCourse.id ? updatedCourse : course
-      ),
-    }));
+    console.log('Updating course:', updatedCourse);
+    setDashboardData(prevData => {
+      const newData = {
+        ...prevData,
+        courses: prevData.courses.map(course =>
+          course.id === updatedCourse.id ? updatedCourse : course
+        ),
+      };
+      console.log('Course updated, new data:', newData);
+      return newData;
+    });
   }, []);
 
   const handleCreateCourse = useCallback(async (newCourse) => {
@@ -140,8 +225,94 @@ export const useDashboardData = () => {
     }
   }, []);
 
-  // Initialize data fetch
+  // Internship handlers
+  const handleCreateInternship = useCallback(async (newInternship) => {
+    try {
+      console.log('Creating internship:', newInternship);
+      const created = await internshipService.createInternship(newInternship);
+      console.log('Created internship response:', created);
+      
+      setDashboardData(prev => {
+        const newData = {
+          ...prev,
+          internships: [...prev.internships, created],
+          stats: { 
+            ...prev.stats, 
+            internships: prev.stats.internships + 1 
+          }
+        };
+        console.log('After creating internship, new data:', newData);
+        return newData;
+      });
+      return created;
+    } catch (error) {
+      console.error("Error creating internship:", error);
+      throw error;
+    }
+  }, []);
+
+  const handleUpdateInternship = useCallback(async (updatedInternship) => {
+    try {
+      console.log('Updating internship:', updatedInternship);
+      
+      // If updatedInternship has an id and we need to call the API
+      let finalInternship = updatedInternship;
+      if (updatedInternship.id && typeof updatedInternship !== 'object') {
+        // If we received just an ID, we need more data
+        console.error('Invalid internship data for update');
+        return;
+      }
+
+      // Call API if needed (you might want to uncomment this if your API requires it)
+      // if (updatedInternship.id) {
+      //   finalInternship = await internshipService.updateInternship(updatedInternship.id, updatedInternship);
+      // }
+      
+      setDashboardData(prevData => {
+        console.log('Before update - Previous internships:', prevData.internships);
+        const newInternships = prevData.internships.map(internship =>
+          internship.id === updatedInternship.id ? finalInternship : internship
+        );
+        console.log('After update - New internships:', newInternships);
+        
+        const newData = {
+          ...prevData,
+          internships: newInternships,
+        };
+        console.log('Internship updated, full new data:', newData);
+        return newData;
+      });
+      
+      return finalInternship;
+    } catch (error) {
+      console.error("Error updating internship:", error);
+      throw error;
+    }
+  }, []);
+
+  // Registration handlers - add these to handle registration updates
+  const handleUpdateRegistrationStats = useCallback(() => {
+    setDashboardData(prevData => ({
+      ...prevData,
+      stats: {
+        ...prevData.stats,
+        registrations: prevData.workshopRegistrations.length + 
+                      prevData.courseRegistrations.length + 
+                      prevData.internshipRegistrations.length
+      }
+    }));
+  }, []);
+
+  // Initialize data fetch only once
   useEffect(() => {
+    if (!isInitializedRef.current) {
+      fetchDashboardData();
+    }
+  }, [fetchDashboardData]);
+
+  // Add a method to force refresh
+  const forceRefresh = useCallback(() => {
+    isInitializedRef.current = false;
     fetchDashboardData();
   }, [fetchDashboardData]);
 
@@ -150,6 +321,7 @@ export const useDashboardData = () => {
     isLoading,
     error,
     refetch: fetchDashboardData,
+    forceRefresh,
     // Workshop handlers
     handleUpdateWorkshop,
     handleCreateWorkshop,
@@ -158,5 +330,10 @@ export const useDashboardData = () => {
     handleCreateCourse,
     handleDeleteCourse,
     handleArchiveCourse,
+    // Internship handlers
+    handleCreateInternship,
+    handleUpdateInternship,
+    // Registration handlers
+    handleUpdateRegistrationStats
   };
 };

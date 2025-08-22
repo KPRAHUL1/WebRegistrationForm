@@ -60,5 +60,27 @@ export const workshopService = {
     });
     if (!response.ok) throw new Error('Failed to delete workshop');
     return response.json();
+  },
+  // In WorkshopApi.js
+ getRegistrations : async () => {
+  try {
+    const response = await fetch(`${API_BASE}/register/registrations`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add authorization headers if needed
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data; // This will be the transformed registrations array from your backend
+  } catch (error) {
+    console.error('Error fetching workshop registrations:', error);
+    throw error;
   }
+}
 };

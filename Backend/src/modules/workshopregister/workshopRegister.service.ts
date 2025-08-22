@@ -18,11 +18,11 @@ export async function registerForWorkshop(payload: any) {
     // 2. Create workshop registration
     return await tx.workshopRegistration.create({
       data: {
-        name: payload.name,
+        name: payload.fullName,
         email: payload.email,
         phone: payload.phone,
-        college: payload.collegeName, // Note: mapping collegeName to college
-        branch: payload.department,   // Note: mapping department to branch
+        college: payload.collegeName,
+        branch: payload.department,
         year: payload.year,
         experience: payload.experience,
         formData: payload.formData,

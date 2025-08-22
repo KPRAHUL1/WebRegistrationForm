@@ -1,37 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { FaDownload, FaSearch } from 'react-icons/fa';
 import axios from 'axios';
-import { courseService } from '../../api/CoursesApi';
+import { internshipService } from '../../api/InternshipApi';
 
 const RegistrationList = () => {
-  const [courses, setCourses] = useState([]);
+  const [internships, setInternships] = useState([]);
   const [registrations, setRegistrations] = useState([]);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-
+ console.log(internships);
+ 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const [coursesRes, registrationsRes] = await Promise.all([
-        courseService.getCourses(),
-        axios.get('http://localhost:7700/api/courses/registrations')
+      const [internshipsRes, registrationsRes] = await Promise.all([
+        internshipService.getInternships(),
+        axios.get('http://localhost:7700/api/internship/registrations')
       ]);
       
-      console.log('Courses response:', coursesRes);
+      console.log('Internships response:', internshipsRes);
       console.log('Registrations response:', registrationsRes);
       
       // Handle the response structure correctly
-      if (coursesRes.data && coursesRes.data.success) {
-        setCourses(coursesRes);
-        console.log(coursesRes.data.data);
+      if (internshipsRes.data && internshipsRes.data.success) {
+        setInternships(internshipsRes);
+        console.log(internshipsRes.data.data);
         
       } else {
-        setCourses(coursesRes || []);
-        console.log(coursesRes);
+        setInternships(internshipsRes || []);
+        console.log(internshipsRes);
         
       }
       
@@ -44,7 +45,7 @@ const RegistrationList = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
       // Set empty arrays on error to prevent crashes
-      setCourses([]);
+      setInternships([]);
       setRegistrations([]);
     } finally {
       setLoading(false);
@@ -56,7 +57,7 @@ const RegistrationList = () => {
       Name: reg.name,
       Email: reg.email,
       Phone: reg.phone,
-      Course: reg.course ? reg.course.title : 'N/A', // Fixed: access course.title
+      Internship: reg.internship ? reg.internship.title : 'N/A', // Fixed: access internship.title
       College: reg.college || 'N/A',
       Branch: reg.branch || 'N/A',
       Year: reg.year || 'N/A',
@@ -64,7 +65,7 @@ const RegistrationList = () => {
     }));
 
     const csv = convertToCSV(dataToExport);
-    downloadCSV(csv, 'course_registrations.csv');
+    downloadCSV(csv, 'internship_registrations.csv');
   };
 
   const convertToCSV = (data) => {
@@ -92,11 +93,11 @@ const RegistrationList = () => {
   };
 
   const filteredRegistrations = registrations
-    .filter(reg => filter === 'all' || reg.courseId === filter)
+    .filter(reg => filter === 'all' || reg.internshipId === filter)
     .filter(reg =>
       reg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       reg.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (reg.course && reg.course.title.toLowerCase().includes(searchTerm.toLowerCase())) // Fixed: access course.title
+      (reg.internship && reg.internship.title.toLowerCase().includes(searchTerm.toLowerCase())) // Fixed: access internship.title
     );
 
   if (loading) {
@@ -106,7 +107,7 @@ const RegistrationList = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Course Registrations</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Internship Registrations</h1>
       </div>
 
       <div className="flex justify-between items-center mb-4">
@@ -126,9 +127,9 @@ const RegistrationList = () => {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
-            <option value="all">All Courses</option>
-            {courses.map(course => (
-              <option key={course.id} value={course.id}>{course.title}</option>
+            <option value="all">All Internships</option>
+            {internships.data.map(internship => (
+              <option key={internship.id} value={internship.id}>{internship.title}</option>
             ))}
           </select>
         </div>
@@ -148,7 +149,7 @@ const RegistrationList = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Internship</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
               </tr>
             </thead>
@@ -164,7 +165,7 @@ const RegistrationList = () => {
                       <div>{reg.phone}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {reg.course ? reg.course.title : 'N/A'}
+                      {reg.internship ? reg.internship.title : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <span className={`px-2 py-1 text-xs rounded-full ${

@@ -1,8 +1,8 @@
-// components/EditCourseModal.js
+// components/EditInternshipModal.js
 import React, { useState, useEffect } from 'react';
-import { courseService } from '../../api/CoursesApi';
+import { internshipService } from '../../api/InternshipApi';
 
-const EditCourseModal = ({ isOpen, onClose, course, onSave }) => {
+const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -18,17 +18,17 @@ const EditCourseModal = ({ isOpen, onClose, course, onSave }) => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        if (course) {
+        if (internship) {
             const formattedData = {
-                ...course,
-                startDate: course.startDate ? new Date(course.startDate).toISOString().split('T')[0] : '',
-                endDate: course.endDate ? new Date(course.endDate).toISOString().split('T')[0] : '',
-                price: course.price || 0,
-                maxSeats: course.maxSeats || 50
+                ...internship,
+                startDate: internship.startDate ? new Date(internship.startDate).toISOString().split('T')[0] : '',
+                endDate: internship.endDate ? new Date(internship.endDate).toISOString().split('T')[0] : '',
+                price: internship.price || 0,
+                maxSeats: internship.maxSeats || 50
             };
             setFormData(formattedData);
         }
-    }, [course]);
+    }, [internship]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -43,29 +43,29 @@ const EditCourseModal = ({ isOpen, onClose, course, onSave }) => {
         setIsLoading(true);
         setError('');
 
-        if (!course || !course.id) {
-            setError('Error: No course selected for update.');
+        if (!internship || !internship.id) {
+            setError('Error: No internship selected for update.');
             setIsLoading(false);
             return;
         }
 
         try {
-            const courseData = {
+            const internshipData = {
                 ...formData,
                 price: parseFloat(formData.price),
                 maxSeats: parseInt(formData.maxSeats),
                 startDate: new Date(formData.startDate).toISOString(),
                 endDate: new Date(formData.endDate).toISOString(),
-                formFields: course?.formFields || null,
-                isArchived: course?.isArchived || false
+                formFields: internship?.formFields || null,
+                isArchived: internship?.isArchived || false
             };
             
-            const updatedCourse = await courseService.updateCourse(course.id, courseData);
+            const updatedInternship = await internshipService.updateInternship(internship.id, internshipData);
             
-            onSave(updatedCourse);
+            onSave(updatedInternship);
             onClose();
         } catch (err) {
-            setError(err.response?.data?.message || err.message || 'Failed to update course');
+            setError(err.response?.data?.message || err.message || 'Failed to update internship');
         } finally {
             setIsLoading(false);
         }
@@ -77,7 +77,7 @@ const EditCourseModal = ({ isOpen, onClose, course, onSave }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
             <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Edit Course</h2>
+                    <h2 className="text-xl font-bold text-gray-900">Edit Internship</h2>
                     <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 text-2xl"
@@ -167,7 +167,7 @@ const EditCourseModal = ({ isOpen, onClose, course, onSave }) => {
                                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                             />
                             <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
-                                Active Course
+                                Active Internship
                             </label>
                         </div>
                     </div>
@@ -186,7 +186,7 @@ const EditCourseModal = ({ isOpen, onClose, course, onSave }) => {
                             className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
                             disabled={isLoading}
                         >
-                            {isLoading ? 'Updating...' : 'Update Course'}
+                            {isLoading ? 'Updating...' : 'Update Internship'}
                         </button>
                     </div>
                 </form>
@@ -195,4 +195,4 @@ const EditCourseModal = ({ isOpen, onClose, course, onSave }) => {
     );
 };
 
-export default EditCourseModal;
+export default EditInternshipModal;

@@ -11,7 +11,8 @@ import {
   getCourseRegistrations,
   createCourseRegistration,
   updateCourseRegistration,
-  deleteCourseRegistration
+  deleteCourseRegistration,
+  getActiveCourses
 } from './course.service';
 
 // ============ COURSE ROUTES ============
@@ -56,6 +57,15 @@ router.get("/", async (req: any, res: any) => {
     res.status(500).json({ 
       error: error.message || "Failed to fetch courses" 
     });
+  }
+});
+router.get('/active', async (req: any, res: any) => {
+  try {
+    const workshops = await getActiveCourses();
+    res.json(workshops);
+  } catch (error) {
+    console.error("Error fetching active workshops:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -167,9 +177,9 @@ router.get("/:courseId/registrations", async (req: any, res: any) => {
 // Create course registration
 router.post("/:courseId/register", async (req: any, res: any) => {
   try {
-    const { name, email, phone } = req.body;
+    const { fullName, email, phone } = req.body;
     
-    if (!name || !email) {
+    if (!fullName || !email) {
       return res.status(400).json({
         error: "Missing required fields: name, email"
       });
@@ -177,7 +187,7 @@ router.post("/:courseId/register", async (req: any, res: any) => {
 
     const registrationData = {
       courseId: req.params.courseId,
-      name,
+      fullName,
       email,
       phone,
       formData: req.body.formData
