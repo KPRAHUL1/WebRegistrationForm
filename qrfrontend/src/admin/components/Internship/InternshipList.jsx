@@ -1,24 +1,18 @@
 import React, { useState } from 'react';
-import { FaPencilAlt, FaSearch, FaExclamationCircle, FaBook } from 'react-icons/fa';
+import { FaPencilAlt, FaSearch, FaExclamationCircle, FaBook, FaGlobe, FaMapMarkerAlt, FaVideo } from 'react-icons/fa';
 
 const InternshipList = ({ internships = [], handleEdit }) => {
   // State for search term and pagination
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const internshipsPerPage = 5;
-console.log(internships);
-
-  // Debug logging
-  console.log('InternshipList received internships:', internships);
 
   // Handle empty or invalid internships data
   if (!Array.isArray(internships)) {
-    console.warn('Internships is not an array:', internships);
     return (
       <div className="text-center py-10">
         <FaExclamationCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <p className="text-gray-500">Invalid internships data received</p>
-        <p className="text-xs text-gray-400 mt-2">Expected array, got: {typeof internships}</p>
       </div>
     );
   }
@@ -28,20 +22,18 @@ console.log(internships);
       <div className="text-center py-10">
         <FaBook className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <p className="text-gray-500">No internships found</p>
-        <p className="text-xs text-gray-400 mt-2">
-          {searchTerm ? `No results for "${searchTerm}"` : 'Add your first internship to get started'}
-        </p>
       </div>
     );
   }
 
   // Filter internships based on search term
   const filteredInternships = internships.filter(internship => {
-    if (!internship || !internship.title) {
-      console.warn('Invalid internship object:', internship);
-      return false;
-    }
-    return internship.title.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!internship || !internship.title) return false;
+    const searchLower = searchTerm.toLowerCase();
+    return internship.title.toLowerCase().includes(searchLower) ||
+           (internship.teacher && internship.teacher.toLowerCase().includes(searchLower)) ||
+           (internship.incharge && internship.incharge.toLowerCase().includes(searchLower)) ||
+           (internship.deliveryMode && internship.deliveryMode.toLowerCase().includes(searchLower));
   });
 
   // Calculate pagination variables
@@ -74,16 +66,27 @@ console.log(internships);
     try {
       return new Date(dateString).toLocaleDateString();
     } catch (error) {
-      console.error('Date formatting error:', error);
       return 'Invalid Date';
     }
   };
 
-  // Safe number formatting
-  const formatNumber = (value) => {
-    if (value === null || value === undefined || value === '') return 0;
-    const num = Number(value);
-    return isNaN(num) ? 0 : num;
+  // Delivery mode icon and badge
+  const getDeliveryModeBadge = (mode) => {
+    const modeConfig = {
+      ONLINE: { icon: FaGlobe, color: 'bg-blue-100 text-blue-800', text: 'Online' },
+      OFFLINE: { icon: FaMapMarkerAlt, color: 'bg-green-100 text-green-800', text: 'Offline' },
+      HYBRID: { icon: FaVideo, color: 'bg-purple-100 text-purple-800', text: 'Hybrid' }
+    };
+    
+    const config = modeConfig[mode] || modeConfig.OFFLINE;
+    const IconComponent = config.icon;
+    
+    return (
+      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full items-center ${config.color}`}>
+        <IconComponent className="mr-1 h-3 w-3" />
+        {config.text}
+      </span>
+    );
   };
 
   return (
@@ -96,10 +99,10 @@ console.log(internships);
           <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search internships..."
+            placeholder="Search internships, teachers, coordinators..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="border border-gray-300 rounded-md pl-10 pr-4 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-gray-300 rounded-md pl-10 pr-4 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-80"
           />
         </div>
       </div>
@@ -117,19 +120,19 @@ console.log(internships);
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Title
+                    Internship Details
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Start Date
+                    Schedule
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    End Date
+                    Delivery & Location
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Seats
+                    Instructor
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Price
+                    Pricing
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Status
@@ -140,52 +143,92 @@ console.log(internships);
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {currentInternships.map((internship, idx) => {
-                  // Ensure we have valid data for each field
-                  const safeInternship = internship || {};
-                  
-                  return (
-                    <tr key={safeInternship.id || `internship-${idx}`} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {safeInternship.title || 'Untitled Internship'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(safeInternship.startDate)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(safeInternship.endDate)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatNumber(safeInternship.maxSeats)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ₹{formatNumber(safeInternship.price)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            safeInternship.isActive
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {safeInternship.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button
-                          onClick={() => handleEdit(safeInternship)}
-                          className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          disabled={!safeInternship.id}
-                          title={!safeInternship.id ? 'Internship ID is required to edit' : 'Edit internship'}
-                        >
-                          <FaPencilAlt className="inline mr-1" />
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {currentInternships.map((internship, idx) => (
+                  <tr key={internship?.id || `internship-${idx}`} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {internship?.posterImage && (
+                          <img 
+                            className="h-10 w-10 rounded-lg object-cover mr-3" 
+                            src={internship.posterImage} 
+                            alt={internship.title}
+                            onError={(e) => {e.target.style.display = 'none'}}
+                          />
+                        )}
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {internship?.title || 'Untitled Internship'}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {internship?.maxSeats || 0} seats
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div>
+                        <div>Start: {formatDate(internship?.startDate)}</div>
+                        <div>End: {formatDate(internship?.endDate)}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="mb-2">
+                        {getDeliveryModeBadge(internship?.deliveryMode)}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {internship?.deliveryMode === 'OFFLINE' && internship?.venue && (
+                          <div title={internship.venue}>{internship.venue.length > 20 ? internship.venue.substring(0, 20) + '...' : internship.venue}</div>
+                        )}
+                        {internship?.deliveryMode === 'ONLINE' && internship?.meetingLink && (
+                          <div className="text-blue-600">Online Meeting</div>
+                        )}
+                        {internship?.deliveryMode === 'HYBRID' && (
+                          <div>Hybrid Format</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div>
+                        {internship?.teacher && (
+                          <div className="font-medium text-gray-900">{internship.teacher}</div>
+                        )}
+                        {internship?.incharge && (
+                          <div className="text-gray-500">Coord: {internship.incharge}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div>
+                        <div className="font-medium">₹{internship?.price || 0}</div>
+                        {internship?.totalAmount && internship?.totalAmount !== internship?.price && (
+                          <div className="text-green-600 text-xs">Total: ₹{internship.totalAmount}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          internship?.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {internship?.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={() => handleEdit(internship)}
+                        className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        disabled={!internship?.id}
+                        title={!internship?.id ? 'Internship ID is required to edit' : 'Edit internship'}
+                      >
+                        <FaPencilAlt className="inline mr-1" />
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
