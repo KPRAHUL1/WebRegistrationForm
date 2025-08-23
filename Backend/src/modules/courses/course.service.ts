@@ -1,5 +1,5 @@
 import { db } from "../../shared/lib/db";
-import { Prisma } from '@prisma/client';
+import { Prisma, DeliveryMode } from '@prisma/client';
 
 // Helper function to calculate duration
 function calculateDuration(startDate: Date, endDate: Date): string {
@@ -19,6 +19,22 @@ function calculateDuration(startDate: Date, endDate: Date): string {
   }
 }
 
+// Helper function to calculate total amount
+function calculateTotalAmount(price: number, taxRate: number = 0.18): number {
+  // Add 18% GST by default, can be customized
+  return Math.round((price + (price * taxRate)) * 100) / 100;
+}
+
+// Helper function to validate delivery mode fields
+function validateDeliveryModeFields(deliveryMode: DeliveryMode, venue?: string, meetingLink?: string) {
+  if (deliveryMode === 'OFFLINE' && !venue) {
+    throw new Error("Venue is required for offline courses");
+  }
+  if (deliveryMode === 'ONLINE' && !meetingLink) {
+    throw new Error("Meeting link is required for online courses");
+  }
+}
+
 export async function createCourse(payload: any) {
   const startDate = new Date(payload.startDate);
   const endDate = new Date(payload.endDate);
@@ -30,6 +46,14 @@ export async function createCourse(payload: any) {
   
   // Calculate duration
   const duration = calculateDuration(startDate, endDate);
+  
+  // Parse and validate price
+  const price = parseFloat(payload.price) || 0;
+  const totalAmount = payload.totalAmount ? parseFloat(payload.totalAmount) : calculateTotalAmount(price);
+  
+  // Validate delivery mode
+  const deliveryMode = payload.deliveryMode || 'OFFLINE';
+  validateDeliveryModeFields(deliveryMode, payload.venue, payload.meetingLink);
   
   // Ensure createdBy references an existing admin
   const adminExists = await db.admin.findUnique({
@@ -47,8 +71,16 @@ export async function createCourse(payload: any) {
       startDate: startDate,
       endDate: endDate,
       duration: duration,
-      price: parseFloat(payload.price) || 0,
-      maxSeats: parseInt(payload.maxSeats) || 50,
+      price: price,
+      totalAmount: totalAmount,
+      maxSeats: parseInt(payload.maxSeats) || 100,
+      deliveryMode: deliveryMode as DeliveryMode,
+      venue: payload.venue || null,
+      meetingLink: payload.meetingLink || null,
+      posterImage: payload.posterImage || null,
+      teacher: payload.teacher || null,
+      teacherBio: payload.teacherBio || null,
+      incharge: payload.incharge || null,
       createdBy: payload.createdBy,
       isActive: payload.isActive ?? true,
       isArchived: payload.isArchived ?? false,
@@ -140,13 +172,46 @@ export async function updateCourse(id: string, payload: any) {
   // Prepare update data
   const updateData: any = {};
   
+  // Basic fields
   if (payload.title !== undefined) updateData.title = payload.title;
   if (payload.description !== undefined) updateData.description = payload.description;
-  if (payload.price !== undefined) updateData.price = parseFloat(payload.price);
   if (payload.maxSeats !== undefined) updateData.maxSeats = parseInt(payload.maxSeats);
   if (payload.isActive !== undefined) updateData.isActive = payload.isActive;
   if (payload.isArchived !== undefined) updateData.isArchived = payload.isArchived;
   if (payload.formFields !== undefined) updateData.formFields = payload.formFields;
+  
+  // New fields
+  if (payload.deliveryMode !== undefined) {
+    updateData.deliveryMode = payload.deliveryMode as DeliveryMode;
+    // Validate delivery mode specific fields
+    validateDeliveryModeFields(
+      payload.deliveryMode, 
+      payload.venue !== undefined ? payload.venue : existingCourse.venue, 
+      payload.meetingLink !== undefined ? payload.meetingLink : existingCourse.meetingLink
+    );
+  }
+  
+  if (payload.venue !== undefined) updateData.venue = payload.venue;
+  if (payload.meetingLink !== undefined) updateData.meetingLink = payload.meetingLink;
+  if (payload.posterImage !== undefined) updateData.posterImage = payload.posterImage;
+  if (payload.teacher !== undefined) updateData.teacher = payload.teacher;
+  if (payload.teacherBio !== undefined) updateData.teacherBio = payload.teacherBio;
+  if (payload.incharge !== undefined) updateData.incharge = payload.incharge;
+  
+  // Handle price and total amount
+  if (payload.price !== undefined) {
+    const price = parseFloat(payload.price);
+    updateData.price = price;
+    
+    // Recalculate total amount if not explicitly provided
+    if (payload.totalAmount === undefined) {
+      updateData.totalAmount = calculateTotalAmount(price);
+    }
+  }
+  
+  if (payload.totalAmount !== undefined) {
+    updateData.totalAmount = parseFloat(payload.totalAmount);
+  }
   
   // Handle date updates and recalculate duration if needed
   if (payload.startDate !== undefined || payload.endDate !== undefined) {
@@ -246,6 +311,12 @@ export async function getCourseRegistrations(courseId?: string) {
           startDate: true,
           endDate: true,
           price: true,
+          totalAmount: true,
+          deliveryMode: true,
+          venue: true,
+          meetingLink: true,
+          teacher: true,
+          incharge: true,
         }
       }
     },
@@ -295,7 +366,7 @@ export async function createCourseRegistration(payload: any) {
   return await db.courseRegistration.create({
     data: {
       courseId: payload.courseId,
-      name: payload.fullName,  // Use fullName instead of name
+      name: payload.fullName,
       email: payload.email,
       phone: payload.phone,
       formData: payload.formData,
@@ -309,6 +380,12 @@ export async function createCourseRegistration(payload: any) {
           startDate: true,
           endDate: true,
           price: true,
+          totalAmount: true,
+          deliveryMode: true,
+          venue: true,
+          meetingLink: true,
+          teacher: true,
+          incharge: true,
         }
       }
     }
@@ -327,7 +404,7 @@ export async function updateCourseRegistration(id: string, payload: any) {
   // Prepare update data
   const updateData: any = {};
   
-  if (payload.name !== undefined) updateData.fullName = payload.name; // Use fullName
+  if (payload.name !== undefined) updateData.name = payload.name;
   if (payload.email !== undefined) updateData.email = payload.email;
   if (payload.phone !== undefined) updateData.phone = payload.phone;
   if (payload.status !== undefined) updateData.status = payload.status;
@@ -344,6 +421,12 @@ export async function updateCourseRegistration(id: string, payload: any) {
           startDate: true,
           endDate: true,
           price: true,
+          totalAmount: true,
+          deliveryMode: true,
+          venue: true,
+          meetingLink: true,
+          teacher: true,
+          incharge: true,
         }
       }
     }
@@ -363,9 +446,29 @@ export async function deleteCourseRegistration(id: string) {
     where: { id }
   });
 }
+
 export async function getActiveCourses() {
   return await db.course.findMany({
-    where: { isActive: true, isArchived: false },
-    orderBy: { startDate: 'asc' }
+    where: { 
+      isActive: true, 
+      isArchived: false 
+    },
+    include: {
+      admin: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        }
+      },
+      _count: {
+        select: {
+          registrations: true
+        }
+      }
+    },
+    orderBy: { 
+      startDate: 'asc' 
+    }
   });
 }
