@@ -21,11 +21,24 @@ import {
 router.post("/", async (req:any, res:any) => {
   try {
     // Validate required fields
-    const { title, startDate, endDate } = req.body;
+    const { title, startDate, endDate, deliveryMode } = req.body;
     
     if (!title || !startDate || !endDate) {
       return res.status(400).json({
         error: "Missing required fields: title, startDate, endDate"
+      });
+    }
+
+    // Validate delivery mode specific fields
+    if (deliveryMode === 'OFFLINE' && !req.body.venue) {
+      return res.status(400).json({
+        error: "Venue is required for offline courses"
+      });
+    }
+
+    if (deliveryMode === 'ONLINE' && !req.body.meetingLink) {
+      return res.status(400).json({
+        error: "Meeting link is required for online courses"
       });
     }
     
@@ -59,12 +72,18 @@ router.get("/", async (req: any, res: any) => {
     });
   }
 });
+
+// Get active courses
 router.get('/active', async (req: any, res: any) => {
   try {
-    const workshops = await getActiveCourses();
-    res.json(workshops);
+    const courses = await getActiveCourses();
+    res.json({
+      success: true,
+      data: courses,
+      count: courses.length
+    });
   } catch (error) {
-    console.error("Error fetching active workshops:", error);
+    console.error("Error fetching active courses:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -107,6 +126,21 @@ router.get("/:id", async (req: any, res: any) => {
 // Update course
 router.put("/:id", async (req: any, res: any) => {
   try {
+    // Validate delivery mode specific fields if being updated
+    const { deliveryMode } = req.body;
+    
+    if (deliveryMode === 'OFFLINE' && req.body.venue === '') {
+      return res.status(400).json({
+        error: "Venue is required for offline courses"
+      });
+    }
+
+    if (deliveryMode === 'ONLINE' && req.body.meetingLink === '') {
+      return res.status(400).json({
+        error: "Meeting link is required for online courses"
+      });
+    }
+
     const result = await updateCourse(req.params.id, req.body);
     res.json({
       success: true,
@@ -181,7 +215,7 @@ router.post("/:courseId/register", async (req: any, res: any) => {
     
     if (!fullName || !email) {
       return res.status(400).json({
-        error: "Missing required fields: name, email"
+        error: "Missing required fields: fullName, email"
       });
     }
 

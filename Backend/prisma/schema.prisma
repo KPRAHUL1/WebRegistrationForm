@@ -30,6 +30,13 @@ enum AdminRole {
   MODERATOR
 }
 
+// New enum for delivery mode
+enum DeliveryMode {
+  ONLINE
+  OFFLINE
+  HYBRID
+}
+
 model Workshop {
   id           String               @id @default(cuid())
   title        String
@@ -39,9 +46,17 @@ model Workshop {
   startTime    String
   endTime      String
   price        Float
+  totalAmount  Float?               // NEW: For calculated total including taxes/fees
   maxSeats     Int                  @default(50)
   isActive     Boolean              @default(true)
   isArchived   Boolean              @default(false)
+  deliveryMode DeliveryMode         @default(OFFLINE) // NEW: Online/Offline mode
+  venue        String?              // NEW: Physical venue for offline mode
+  meetingLink  String?              // NEW: Meeting link for online mode
+  posterImage  String?              // NEW: Poster image URL/path
+  teacher      String?              // NEW: Primary teacher/instructor name
+  teacherBio   String?              // NEW: Teacher biography
+  incharge     String?              // NEW: Program coordinator/incharge
   formFields   Json?
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
@@ -61,9 +76,17 @@ model Course {
   endDate      DateTime
   duration     String
   price        Float                @default(0)
+  totalAmount  Float?               // NEW: For calculated total including taxes/fees
   maxSeats     Int                  @default(100)
   isActive     Boolean              @default(true)
   isArchived   Boolean              @default(false)
+  deliveryMode DeliveryMode         @default(OFFLINE) // NEW: Online/Offline mode
+  venue        String?              // NEW: Physical venue for offline mode
+  meetingLink  String?              // NEW: Meeting link for online mode
+  posterImage  String?              // NEW: Poster image URL/path
+  teacher      String?              // NEW: Primary teacher/instructor name
+  teacherBio   String?              // NEW: Teacher biography
+  incharge     String?              // NEW: Program coordinator/incharge
   formFields   Json?
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
@@ -83,9 +106,17 @@ model Internship {
   endDate     DateTime
   duration    String
   stipend     Float                 @default(0)
+  totalAmount Float?               // NEW: For calculated total including taxes/fees (if applicable)
   maxSeats    Int                   @default(20)
   isActive    Boolean               @default(true)
   isArchived  Boolean               @default(false)
+  deliveryMode DeliveryMode         @default(OFFLINE) // NEW: Online/Offline mode
+  venue       String?              // NEW: Physical venue for offline mode
+  meetingLink String?              // NEW: Meeting link for online mode
+  posterImage String?              // NEW: Poster image URL/path
+  supervisor  String?              // NEW: Internship supervisor (instead of teacher)
+  supervisorBio String?            // NEW: Supervisor biography
+  incharge    String?              // NEW: Program coordinator/incharge
   formFields  Json?
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
@@ -123,10 +154,10 @@ model WorkshopRegistration {
 model CourseRegistration {
   id          String      @id @default(cuid())
   courseId    String
-  name        String      // Add this field (or rename from fullName if that exists)
+  name        String
   email       String
   phone       String?
-  status      String      @default("pending") // pending, confirmed, cancelled
+  status      String      @default("pending")
   formData    Json?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -135,9 +166,10 @@ model CourseRegistration {
   course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   payment     Payment?    @relation(fields: [paymentId], references: [id])
   
-  @@unique([courseId, email]) // Prevent duplicate registrations
+  @@unique([courseId, email])
   @@map("course_registrations")
 }
+
 model InternshipRegistration {
   id            String             @id @default(cuid())
   name          String

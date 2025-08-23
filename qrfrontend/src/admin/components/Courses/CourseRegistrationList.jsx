@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaDownload, FaSearch } from 'react-icons/fa';
+import { FaDownload, FaSearch, FaGlobe, FaMapMarkerAlt, FaVideo } from 'react-icons/fa';
 import axios from 'axios';
 import { courseService } from '../../api/CoursesApi';
 
@@ -26,13 +26,9 @@ const RegistrationList = () => {
       
       // Handle the response structure correctly
       if (coursesRes.data && coursesRes.data.success) {
-        setCourses(coursesRes);
-        console.log(coursesRes.data.data);
-        
+        setCourses(coursesRes.data.data);
       } else {
         setCourses(coursesRes || []);
-        console.log(coursesRes);
-        
       }
       
       if (registrationsRes.data && registrationsRes.data.success) {
@@ -43,7 +39,6 @@ const RegistrationList = () => {
       
     } catch (error) {
       console.error('Error fetching data:', error);
-      // Set empty arrays on error to prevent crashes
       setCourses([]);
       setRegistrations([]);
     } finally {
@@ -56,10 +51,15 @@ const RegistrationList = () => {
       Name: reg.name,
       Email: reg.email,
       Phone: reg.phone,
-      Course: reg.course ? reg.course.title : 'N/A', // Fixed: access course.title
-      College: reg.college || 'N/A',
-      Branch: reg.branch || 'N/A',
-      Year: reg.year || 'N/A',
+      Course: reg.course ? reg.course.title : 'N/A',
+      'Delivery Mode': reg.course ? reg.course.deliveryMode : 'N/A',
+      Venue: reg.course && reg.course.venue ? reg.course.venue : 'N/A',
+      'Meeting Link': reg.course && reg.course.meetingLink ? reg.course.meetingLink : 'N/A',
+      Teacher: reg.course && reg.course.teacher ? reg.course.teacher : 'N/A',
+      'Course Coordinator': reg.course && reg.course.incharge ? reg.course.incharge : 'N/A',
+      'Base Price': reg.course ? `₹${reg.course.price}` : 'N/A',
+      'Total Amount': reg.course && reg.course.totalAmount ? `₹${reg.course.totalAmount}` : 'N/A',
+      Status: reg.status || 'pending',
       'Registration Date': new Date(reg.createdAt).toLocaleDateString()
     }));
 
@@ -72,7 +72,6 @@ const RegistrationList = () => {
     const headers = Object.keys(data[0]).join(',');
     const rows = data.map(row => 
       Object.values(row).map(value => 
-        // Escape commas and quotes in CSV
         typeof value === 'string' && (value.includes(',') || value.includes('"')) 
           ? `"${value.replace(/"/g, '""')}"` 
           : value
@@ -91,12 +90,25 @@ const RegistrationList = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const getDeliveryModeIcon = (mode) => {
+    const icons = {
+      ONLINE: { icon: FaGlobe, color: 'text-blue-500' },
+      OFFLINE: { icon: FaMapMarkerAlt, color: 'text-green-500' },
+      HYBRID: { icon: FaVideo, color: 'text-purple-500' }
+    };
+    const config = icons[mode] || icons.OFFLINE;
+    const IconComponent = config.icon;
+    return <IconComponent className={`inline mr-1 ${config.color}`} />;
+  };
+
   const filteredRegistrations = registrations
     .filter(reg => filter === 'all' || reg.courseId === filter)
     .filter(reg =>
       reg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       reg.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (reg.course && reg.course.title.toLowerCase().includes(searchTerm.toLowerCase())) // Fixed: access course.title
+      (reg.course && reg.course.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (reg.course && reg.course.teacher && reg.course.teacher.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (reg.course && reg.course.incharge && reg.course.incharge.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
   if (loading) {
@@ -115,7 +127,7 @@ const RegistrationList = () => {
             <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Search registrations..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="border border-gray-300 rounded-md pl-10 pr-4 py-2 text-sm w-64"
@@ -126,18 +138,20 @@ const RegistrationList = () => {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
-            <option value="all">All Courses</option>
+            <option value="all">All Courses ({registrations.length})</option>
             {courses.map(course => (
-              <option key={course.id} value={course.id}>{course.title}</option>
+              <option key={course.id} value={course.id}>
+                {course.title} ({registrations.filter(r => r.courseId === course.id).length})
+              </option>
             ))}
           </select>
         </div>
         <button
           onClick={exportData}
-          className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700"
+          className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 disabled:opacity-50"
           disabled={!filteredRegistrations.length}
         >
-          <FaDownload className="mr-2" /> Export CSV
+          <FaDownload className="mr-2" /> Export CSV ({filteredRegistrations.length})
         </button>
       </div>
 
@@ -146,25 +160,62 @@ const RegistrationList = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course Details</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Delivery & Instructor</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pricing</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registration Date</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredRegistrations.length > 0 ? (
                 filteredRegistrations.map(reg => (
-                  <tr key={reg.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {reg.name}
+                  <tr key={reg.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{reg.name}</div>
+                      <div className="text-sm text-gray-500">{reg.email}</div>
+                      <div className="text-sm text-gray-500">{reg.phone}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {reg.course ? reg.course.title : 'N/A'}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {reg.course && new Date(reg.course.startDate).toLocaleDateString()} - {reg.course && new Date(reg.course.endDate).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500">
+                        {reg.course && (
+                          <div className="mb-1">
+                            {getDeliveryModeIcon(reg.course.deliveryMode)}
+                            {reg.course.deliveryMode || 'OFFLINE'}
+                          </div>
+                        )}
+                        {reg.course && reg.course.deliveryMode === 'OFFLINE' && reg.course.venue && (
+                          <div className="text-xs text-gray-400">📍 {reg.course.venue}</div>
+                        )}
+                        {reg.course && reg.course.deliveryMode === 'ONLINE' && (
+                          <div className="text-xs text-blue-600">🔗 Online Meeting</div>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-700 mt-1">
+                        {reg.course && reg.course.teacher && (
+                          <div className="text-xs">👨‍🏫 {reg.course.teacher}</div>
+                        )}
+                        {reg.course && reg.course.incharge && (
+                          <div className="text-xs">👤 {reg.course.incharge}</div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>{reg.email}</div>
-                      <div>{reg.phone}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {reg.course ? reg.course.title : 'N/A'}
+                      <div>
+                        <div className="font-medium">₹{reg.course ? reg.course.price : 0}</div>
+                        {reg.course && reg.course.totalAmount && reg.course.totalAmount !== reg.course.price && (
+                          <div className="text-green-600 text-xs">Total: ₹{reg.course.totalAmount}</div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <span className={`px-2 py-1 text-xs rounded-full ${
@@ -175,12 +226,15 @@ const RegistrationList = () => {
                         {reg.status || 'pending'}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(reg.createdAt).toLocaleDateString()}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
-                    No registrations found
+                  <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                    {searchTerm ? `No registrations found matching "${searchTerm}"` : 'No registrations found'}
                   </td>
                 </tr>
               )}
@@ -188,6 +242,34 @@ const RegistrationList = () => {
           </table>
         </div>
       </div>
+
+      {/* Summary Statistics */}
+      {registrations.length > 0 && (
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg shadow">
+            <div className="text-2xl font-bold text-gray-900">{registrations.length}</div>
+            <div className="text-sm text-gray-500">Total Registrations</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <div className="text-2xl font-bold text-green-600">
+              {registrations.filter(r => r.status === 'confirmed').length}
+            </div>
+            <div className="text-sm text-gray-500">Confirmed</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <div className="text-2xl font-bold text-yellow-600">
+              {registrations.filter(r => r.status === 'pending').length}
+            </div>
+            <div className="text-sm text-gray-500">Pending</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <div className="text-2xl font-bold text-blue-600">
+              {registrations.filter(r => r.course && r.course.deliveryMode === 'ONLINE').length}
+            </div>
+            <div className="text-sm text-gray-500">Online Courses</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

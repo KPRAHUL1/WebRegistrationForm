@@ -107,16 +107,16 @@ const InternshipsPage = () => {
                 <div className="space-y-2 text-sm text-gray-300">
                   <p>
                     <span className="font-semibold text-white">Date:</span>{" "}
-                    {new Date(internship.startDate).toLocaleDateString()}
+                    {new Date(internship.startDate).toLocaleDateString()} - {new Date(internship.endDate).toLocaleDateString()}
                   </p>
-                  <p>
+                  {/* <p>
                     <span className="font-semibold text-white">Time:</span>{" "}
                     {internship.startTime} - {internship.endTime}
-                  </p>
-                  <p>
+                  </p> */}
+                  {/* <p>
                     <span className="font-semibold text-white">Price:</span> ₹
                     {internship.price}
-                  </p>
+                  </p> */}
                 </div>
               </div>
               <Link

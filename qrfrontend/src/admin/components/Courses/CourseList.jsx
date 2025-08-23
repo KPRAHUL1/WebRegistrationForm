@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaPencilAlt, FaSearch, FaExclamationCircle, FaBook } from 'react-icons/fa';
+import { FaPencilAlt, FaSearch, FaExclamationCircle, FaBook, FaGlobe, FaMapMarkerAlt, FaVideo } from 'react-icons/fa';
 
 const CourseList = ({ courses = [], handleEdit }) => {
   // State for search term and pagination
@@ -29,7 +29,11 @@ const CourseList = ({ courses = [], handleEdit }) => {
   // Filter courses based on search term
   const filteredCourses = courses.filter(course => {
     if (!course || !course.title) return false;
-    return course.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    return course.title.toLowerCase().includes(searchLower) ||
+           (course.teacher && course.teacher.toLowerCase().includes(searchLower)) ||
+           (course.incharge && course.incharge.toLowerCase().includes(searchLower)) ||
+           (course.deliveryMode && course.deliveryMode.toLowerCase().includes(searchLower));
   });
 
   // Calculate pagination variables
@@ -62,8 +66,27 @@ const CourseList = ({ courses = [], handleEdit }) => {
     try {
       return new Date(dateString).toLocaleDateString();
     } catch (error) {
-      return 'Invalid Date',error;
+      return 'Invalid Date';
     }
+  };
+
+  // Delivery mode icon and badge
+  const getDeliveryModeBadge = (mode) => {
+    const modeConfig = {
+      ONLINE: { icon: FaGlobe, color: 'bg-blue-100 text-blue-800', text: 'Online' },
+      OFFLINE: { icon: FaMapMarkerAlt, color: 'bg-green-100 text-green-800', text: 'Offline' },
+      HYBRID: { icon: FaVideo, color: 'bg-purple-100 text-purple-800', text: 'Hybrid' }
+    };
+    
+    const config = modeConfig[mode] || modeConfig.OFFLINE;
+    const IconComponent = config.icon;
+    
+    return (
+      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full items-center ${config.color}`}>
+        <IconComponent className="mr-1 h-3 w-3" />
+        {config.text}
+      </span>
+    );
   };
 
   return (
@@ -76,10 +99,10 @@ const CourseList = ({ courses = [], handleEdit }) => {
           <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search courses..."
+            placeholder="Search courses, teachers, coordinators..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="border border-gray-300 rounded-md pl-10 pr-4 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-gray-300 rounded-md pl-10 pr-4 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-80"
           />
         </div>
       </div>
@@ -97,19 +120,19 @@ const CourseList = ({ courses = [], handleEdit }) => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Title
+                    Course Details
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Start Date
+                    Schedule
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    End Date
+                    Delivery & Location
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Seats
+                    Instructor
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Price
+                    Pricing
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Status
@@ -122,20 +145,65 @@ const CourseList = ({ courses = [], handleEdit }) => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentCourses.map((course, idx) => (
                   <tr key={course?.id || `course-${idx}`} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {course?.title || 'Untitled Course'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {course?.posterImage && (
+                          <img 
+                            className="h-10 w-10 rounded-lg object-cover mr-3" 
+                            src={course.posterImage} 
+                            alt={course.title}
+                            onError={(e) => {e.target.style.display = 'none'}}
+                          />
+                        )}
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {course?.title || 'Untitled Course'}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {course?.maxSeats || 0} seats
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(course?.startDate)}
+                      <div>
+                        <div>Start: {formatDate(course?.startDate)}</div>
+                        <div>End: {formatDate(course?.endDate)}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="mb-2">
+                        {getDeliveryModeBadge(course?.deliveryMode)}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {course?.deliveryMode === 'OFFLINE' && course?.venue && (
+                          <div title={course.venue}>{course.venue.length > 20 ? course.venue.substring(0, 20) + '...' : course.venue}</div>
+                        )}
+                        {course?.deliveryMode === 'ONLINE' && course?.meetingLink && (
+                          <div className="text-blue-600">Online Meeting</div>
+                        )}
+                        {course?.deliveryMode === 'HYBRID' && (
+                          <div>Hybrid Format</div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(course?.endDate)}
+                      <div>
+                        {course?.teacher && (
+                          <div className="font-medium text-gray-900">{course.teacher}</div>
+                        )}
+                        {course?.incharge && (
+                          <div className="text-gray-500">Coord: {course.incharge}</div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {course?.maxSeats || 0}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ₹{course?.price || 0}
+                      <div>
+                        <div className="font-medium">₹{course?.price || 0}</div>
+                        {course?.totalAmount && course?.totalAmount !== course?.price && (
+                          <div className="text-green-600 text-xs">Total: ₹{course.totalAmount}</div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
