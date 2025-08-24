@@ -11,7 +11,15 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
         startTime: '10:00',
         endTime: '17:00',
         price: 0,
+        totalAmount: 0,
         maxSeats: 50,
+        deliveryMode: 'OFFLINE',
+        venue: '',
+        meetingLink: '',
+        posterImage: '',
+        supervisor: '',
+        supervisorBio: '',
+        incharge: '',
         isActive: true
     });
     const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +32,15 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
                 startDate: internship.startDate ? new Date(internship.startDate).toISOString().split('T')[0] : '',
                 endDate: internship.endDate ? new Date(internship.endDate).toISOString().split('T')[0] : '',
                 price: internship.price || 0,
-                maxSeats: internship.maxSeats || 50
+                totalAmount: internship.totalAmount || internship.price || 0,
+                maxSeats: internship.maxSeats || 50,
+                deliveryMode: internship.deliveryMode || 'OFFLINE',
+                venue: internship.venue || '',
+                meetingLink: internship.meetingLink || '',
+                posterImage: internship.posterImage || '',
+                supervisor: internship.supervisor || '',
+                supervisorBio: internship.supervisorBio || '',
+                incharge: internship.incharge || ''
             };
             setFormData(formattedData);
         }
@@ -49,10 +65,24 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
             return;
         }
 
+        // Validation for delivery mode specific fields
+        if (formData.deliveryMode === 'OFFLINE' && !formData.venue.trim()) {
+            setError('Venue is required for offline internships.');
+            setIsLoading(false);
+            return;
+        }
+
+        if (formData.deliveryMode === 'ONLINE' && !formData.meetingLink.trim()) {
+            setError('Meeting link is required for online internships.');
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const internshipData = {
                 ...formData,
                 price: parseFloat(formData.price),
+                totalAmount: parseFloat(formData.totalAmount),
                 maxSeats: parseInt(formData.maxSeats),
                 startDate: new Date(formData.startDate).toISOString(),
                 endDate: new Date(formData.endDate).toISOString(),
@@ -75,7 +105,7 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-gray-900">Edit Internship</h2>
                     <button
@@ -92,71 +122,243 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Basic Information */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Basic Information</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Title *</label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Poster Image URL</label>
+                                <input
+                                    type="url"
+                                    name="posterImage"
+                                    value={formData.posterImage}
+                                    onChange={handleChange}
+                                    placeholder="https://example.com/poster.jpg"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+                        </div>
+
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Title *</label>
-                            <input
-                                type="text"
-                                name="title"
-                                value={formData.title}
+                            <label className="block text-sm font-medium text-gray-700">Description *</label>
+                            <textarea
+                                name="description"
+                                value={formData.description}
                                 onChange={handleChange}
+                                rows={3}
                                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 required
                             />
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Description *</label>
-                        <textarea
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            rows={3}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                            required
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Start Date *</label>
-                            <input
-                                type="date"
-                                name="startDate"
-                                value={formData.startDate}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">End Date *</label>
-                            <input
-                                type="date"
-                                name="endDate"
-                                value={formData.endDate}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                required
-                            />
+                    {/* Schedule Information */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Schedule</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Start Date *</label>
+                                <input
+                                    type="date"
+                                    name="startDate"
+                                    value={formData.startDate}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">End Date *</label>
+                                <input
+                                    type="date"
+                                    name="endDate"
+                                    value={formData.endDate}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Delivery Mode */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Delivery Mode</h3>
+                        
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Maximum Seats *</label>
-                            <input
-                                type="number"
-                                name="maxSeats"
-                                value={formData.maxSeats}
+                            <label className="block text-sm font-medium text-gray-700">Delivery Mode *</label>
+                            <select
+                                name="deliveryMode"
+                                value={formData.deliveryMode}
                                 onChange={handleChange}
-                                min="1"
                                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                 required
+                            >
+                                <option value="OFFLINE">Offline</option>
+                                <option value="ONLINE">Online</option>
+                                <option value="HYBRID">Hybrid</option>
+                            </select>
+                        </div>
+
+                        {formData.deliveryMode === 'OFFLINE' && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Venue *</label>
+                                <input
+                                    type="text"
+                                    name="venue"
+                                    value={formData.venue}
+                                    onChange={handleChange}
+                                    placeholder="Enter venue address"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                        )}
+
+                        {formData.deliveryMode === 'ONLINE' && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Meeting Link *</label>
+                                <input
+                                    type="url"
+                                    name="meetingLink"
+                                    value={formData.meetingLink}
+                                    onChange={handleChange}
+                                    placeholder="https://zoom.us/meeting-link"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                        )}
+
+                        {formData.deliveryMode === 'HYBRID' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Venue</label>
+                                    <input
+                                        type="text"
+                                        name="venue"
+                                        value={formData.venue}
+                                        onChange={handleChange}
+                                        placeholder="Enter venue address"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Meeting Link</label>
+                                    <input
+                                        type="url"
+                                        name="meetingLink"
+                                        value={formData.meetingLink}
+                                        onChange={handleChange}
+                                        placeholder="https://zoom.us/meeting-link"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Instructor Information */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Instructor Information</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Teacher/Instructor</label>
+                                <input
+                                    type="text"
+                                    name="supervisor"
+                                    value={formData.supervisor}
+                                    onChange={handleChange}
+                                    placeholder="Enter instructor name"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Internship Coordinator</label>
+                                <input
+                                    type="text"
+                                    name="incharge"
+                                    value={formData.incharge}
+                                    onChange={handleChange}
+                                    placeholder="Enter coordinator name"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Teacher Biography</label>
+                            <textarea
+                                name="supervisorBio"
+                                value={formData.supervisorBio}
+                                onChange={handleChange}
+                                rows={3}
+                                placeholder="Brief biography of the instructor"
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
+                    </div>
+
+                    {/* Internship Settings */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Internship Settings</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Base Price *</label>
+                                <input
+                                    type="number"
+                                    name="price"
+                                    value={formData.price}
+                                    onChange={handleChange}
+                                    min="0"
+                                    step="0.01"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Total Amount</label>
+                                <input
+                                    type="number"
+                                    name="totalAmount"
+                                    value={formData.totalAmount}
+                                    onChange={handleChange}
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="Including taxes/fees"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Maximum Seats *</label>
+                                <input
+                                    type="number"
+                                    name="maxSeats"
+                                    value={formData.maxSeats}
+                                    onChange={handleChange}
+                                    min="1"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                        </div>
+
                         <div className="flex items-center">
                             <input
                                 type="checkbox"

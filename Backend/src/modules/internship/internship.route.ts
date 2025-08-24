@@ -12,14 +12,21 @@ import {
   createInternshipRegistration,
   updateInternshipRegistration,
   deleteInternshipRegistration,
-  getActiveInternship
+  getActiveInternship,
 } from "./internship.service";
 
 // Create internship
-router.post("/", async (req:any, res:any) => {
+router.post("/", async (req: any, res: any) => {
   try {
-    const { title, startDate, endDate } = req.body;
-    if (!title || !startDate || !endDate) {
+    const { title, startDate, endDate, price, deliveryMode } = req.body;
+    if (
+      !title ||
+      !startDate ||
+      !endDate ||
+      price === undefined ||
+      !deliveryMode
+    ) {
+      // ✅ Added new validation
       return res.status(400).json({ error: "Missing required fields" });
     }
     const result = await createInternship(req.body);
@@ -48,7 +55,8 @@ router.get("/registrations", async (_, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.get('/active', async (req: any, res: any) => {
+
+router.get("/active", async (req: any, res: any) => {
   try {
     const workshops = await getActiveInternship();
     res.json(workshops);
@@ -57,13 +65,16 @@ router.get('/active', async (req: any, res: any) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 // Get internship by ID
 router.get("/:id", async (req, res) => {
   try {
     const internship = await getInternshipById(req.params.id);
     res.json({ success: true, data: internship });
   } catch (err: any) {
-    res.status(err.message.includes("not found") ? 404 : 500).json({ error: err.message });
+    res
+      .status(err.message.includes("not found") ? 404 : 500)
+      .json({ error: err.message });
   }
 });
 
@@ -112,7 +123,7 @@ router.post("/:internshipId/register", async (req, res) => {
   try {
     const result = await createInternshipRegistration({
       ...req.body,
-      internshipId: req.params.internshipId
+      internshipId: req.params.internshipId,
     });
     res.status(201).json({ success: true, data: result });
   } catch (err: any) {
