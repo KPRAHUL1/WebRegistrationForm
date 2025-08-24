@@ -19,8 +19,8 @@ const CreateInternshipForm = ({ onCreateInternship, setView }) => {
     venue: '',
     meetingLink: '',
     posterImage: '',
-    teacher: '',
-    teacherBio: '',
+    supervisor: '',
+    supervisorBio: '',
     incharge: '',
     isActive: true,
   });
@@ -112,8 +112,8 @@ const CreateInternshipForm = ({ onCreateInternship, setView }) => {
         venue: formData.venue.trim() || null,
         meetingLink: formData.meetingLink.trim() || null,
         posterImage: formData.posterImage.trim() || null,
-        teacher: formData.teacher.trim() || null,
-        teacherBio: formData.teacherBio.trim() || null,
+        supervisor: formData.supervisor.trim() || null,
+        supervisorBio: formData.supervisorBio.trim() || null,
         incharge: formData.incharge.trim() || null,
         isActive: formData.isActive,
         createdBy: admin.id, // Replace with actual admin ID from context
@@ -136,8 +136,8 @@ const CreateInternshipForm = ({ onCreateInternship, setView }) => {
         venue: '',
         meetingLink: '',
         posterImage: '',
-        teacher: '',
-        teacherBio: '',
+        supervisor: '',
+        supervisorBio: '',
         incharge: '',
         isActive: true,
       });
@@ -360,7 +360,7 @@ const CreateInternshipForm = ({ onCreateInternship, setView }) => {
                 type="text"
                 id="teacher"
                 name="teacher"
-                value={formData.teacher}
+                value={formData.supervisor}
                 onChange={handleChange}
                 placeholder="Enter instructor name"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -385,7 +385,7 @@ const CreateInternshipForm = ({ onCreateInternship, setView }) => {
             <textarea
               id="teacherBio"
               name="teacherBio"
-              value={formData.teacherBio}
+              value={formData.supervisorBio}
               onChange={handleChange}
               rows="3"
               placeholder="Brief biography of the instructor"

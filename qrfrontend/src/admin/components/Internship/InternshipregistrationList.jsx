@@ -201,8 +201,8 @@ const RegistrationList = () => {
                         )}
                       </div>
                       <div className="text-sm text-gray-700 mt-1">
-                        {reg.internship && reg.internship.teacher && (
-                          <div className="text-xs">👨‍🏫 {reg.internship.teacher}</div>
+                        {reg.internship && reg.internship.supervisor && (
+                          <div className="text-xs">👨‍🏫 {reg.internship.supervisor}</div>
                         )}
                         {reg.internship && reg.internship.incharge && (
                           <div className="text-xs">👤 {reg.internship.incharge}</div>

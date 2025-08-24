@@ -31,7 +31,7 @@ const InternshipList = ({ internships = [], handleEdit }) => {
     if (!internship || !internship.title) return false;
     const searchLower = searchTerm.toLowerCase();
     return internship.title.toLowerCase().includes(searchLower) ||
-           (internship.teacher && internship.teacher.toLowerCase().includes(searchLower)) ||
+           (internship.supervisor && internship.supervisor.toLowerCase().includes(searchLower)) ||
            (internship.incharge && internship.incharge.toLowerCase().includes(searchLower)) ||
            (internship.deliveryMode && internship.deliveryMode.toLowerCase().includes(searchLower));
   });
@@ -189,8 +189,8 @@ const InternshipList = ({ internships = [], handleEdit }) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div>
-                        {internship?.teacher && (
-                          <div className="font-medium text-gray-900">{internship.teacher}</div>
+                        {internship?.supervisor && (
+                          <div className="font-medium text-gray-900">{internship.supervisor}</div>
                         )}
                         {internship?.incharge && (
                           <div className="text-gray-500">Coord: {internship.incharge}</div>

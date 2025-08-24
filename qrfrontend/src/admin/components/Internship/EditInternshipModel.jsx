@@ -17,8 +17,8 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
         venue: '',
         meetingLink: '',
         posterImage: '',
-        teacher: '',
-        teacherBio: '',
+        supervisor: '',
+        supervisorBio: '',
         incharge: '',
         isActive: true
     });
@@ -38,8 +38,8 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
                 venue: internship.venue || '',
                 meetingLink: internship.meetingLink || '',
                 posterImage: internship.posterImage || '',
-                teacher: internship.teacher || '',
-                teacherBio: internship.teacherBio || '',
+                supervisor: internship.supervisor || '',
+                supervisorBio: internship.supervisorBio || '',
                 incharge: internship.incharge || ''
             };
             setFormData(formattedData);
@@ -281,8 +281,8 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
                                 <label className="block text-sm font-medium text-gray-700">Teacher/Instructor</label>
                                 <input
                                     type="text"
-                                    name="teacher"
-                                    value={formData.teacher}
+                                    name="supervisor"
+                                    value={formData.supervisor}
                                     onChange={handleChange}
                                     placeholder="Enter instructor name"
                                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -304,8 +304,8 @@ const EditInternshipModal = ({ isOpen, onClose, internship, onSave }) => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Teacher Biography</label>
                             <textarea
-                                name="teacherBio"
-                                value={formData.teacherBio}
+                                name="supervisorBio"
+                                value={formData.supervisorBio}
                                 onChange={handleChange}
                                 rows={3}
                                 placeholder="Brief biography of the instructor"
