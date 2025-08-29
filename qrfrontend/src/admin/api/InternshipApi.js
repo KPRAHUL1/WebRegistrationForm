@@ -16,7 +16,7 @@ export const internshipService = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(internshipData)
+      body: JSON.stringify({ ...internshipData, price: internshipData.price })
     });
     if (!response.ok) throw new Error('Failed to create internship');
     return response.json();
@@ -29,7 +29,7 @@ export const internshipService = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     },
-    body: JSON.stringify(internshipData)
+    body: JSON.stringify({ ...internshipData, price: internshipData.price })
   });
   if (!response.ok) throw new Error('Failed to update internship');
   return response.json();

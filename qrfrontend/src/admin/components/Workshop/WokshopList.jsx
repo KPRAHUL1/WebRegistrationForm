@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaPencilAlt, FaSearch, FaMapMarkerAlt, FaVideo, FaUser, FaUserTie, FaImage } from 'react-icons/fa';
+import { FaPencilAlt, FaSearch, FaMapMarkerAlt, FaVideo, FaUser, FaUserTie, FaImage, FaCalendar, FaClock, FaMoneyBillWave, FaUsers, FaChalkboardTeacher, FaUserShield } from 'react-icons/fa';
 
 const WorkshopList = ({ workshops, handleEdit }) => {
   // State for search term and pagination
@@ -11,9 +11,10 @@ const WorkshopList = ({ workshops, handleEdit }) => {
 
   // Step 1: Filter workshops based on search term and delivery mode
   const filteredWorkshops = workshops.filter(ws => {
-    const matchesSearch = ws.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = ws.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ws.teacher?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ws.incharge?.toLowerCase().includes(searchTerm.toLowerCase());
+                         ws.incharge?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ws.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMode = filterMode === 'all' || ws.deliveryMode === filterMode;
     return matchesSearch && matchesMode;
   });
@@ -78,18 +79,25 @@ const WorkshopList = ({ workshops, handleEdit }) => {
       {currentWorkshops.map((ws, idx) => (
         <div key={ws?.id ?? idx} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
           {/* Poster Image */}
-          {ws.posterImageUrl && (
+          {ws.posterImage && (
             <div className="h-48 overflow-hidden">
               <img
-                src={ws.posterImageUrl}
+                src={`http://localhost:7700${ws.posterImage}`}
                 alt={ws.title}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
               />
+              <div className="hidden h-48 bg-gray-200 items-center justify-center">
+                <FaImage className="text-gray-400 text-4xl" />
+              </div>
             </div>
           )}
           
           <div className="p-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-gray-900 truncate">{ws.title}</h3>
               <span className={`px-2 py-1 text-xs rounded-full flex items-center ${getDeliveryModeColor(ws.deliveryMode)}`}>
                 {getDeliveryModeIcon(ws.deliveryMode)}
@@ -97,33 +105,80 @@ const WorkshopList = ({ workshops, handleEdit }) => {
               </span>
             </div>
             
-            <p className="text-gray-600 text-sm mb-3 line-clamp-2">{ws.description}</p>
+            {ws.description && (
+              <p className="text-gray-600 text-sm mb-4 line-clamp-2">{ws.description}</p>
+            )}
+
+            {/* Team Information - Prominently Displayed */}
+            <div className="bg-blue-50 p-3 rounded-lg mb-4 border border-blue-200">
+              <h4 className="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+                <FaChalkboardTeacher className="mr-2" />
+                Team Information
+              </h4>
+              <div className="space-y-2">
+                {ws.teacher && (
+                  <div className="flex items-center">
+                    <FaUser className="mr-2 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-900">Teacher:</span>
+                    <span className="ml-2 text-sm text-blue-800">{ws.teacher}</span>
+                  </div>
+                )}
+                {ws.incharge && (
+                  <div className="flex items-center">
+                    <FaUserShield className="mr-2 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-900">Incharge:</span>
+                    <span className="ml-2 text-sm text-blue-800">{ws.incharge}</span>
+                  </div>
+                )}
+                {!ws.teacher && !ws.incharge && (
+                  <div className="text-sm text-blue-600 italic">No team assigned yet</div>
+                )}
+              </div>
+            </div>
             
             <div className="space-y-2 text-sm text-gray-700">
               <div className="flex items-center justify-between">
-                <span>Date:</span>
+                <span className="flex items-center">
+                  <FaCalendar className="mr-2 text-gray-400" />
+                  Date:
+                </span>
                 <span>{new Date(ws.startDate).toLocaleDateString()}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Price:</span>
-                <span className="font-semibold">₹{ws.price}</span>
+                <span className="flex items-center">
+                  <FaClock className="mr-2 text-gray-400" />
+                  Time:
+                </span>
+                <span>{ws.startTime} - {ws.endTime}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Seats:</span>
-                <span>{ws.maxSeats}</span>
+                <span className="flex items-center">
+                  <FaMoneyBillWave className="mr-2 text-gray-400" />
+                  Price:
+                </span>
+                <span className="font-semibold">₹{ws.price}</span>
               </div>
-              
-              {ws.teacher && (
-                <div className="flex items-center">
-                  <FaUser className="mr-2 text-gray-400" />
-                  <span className="truncate">{ws.teacher}</span>
+              {ws.totalAmount && ws.totalAmount !== ws.price && (
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <FaMoneyBillWave className="mr-2 text-gray-400" />
+                    Total:
+                  </span>
+                  <span className="font-semibold text-green-600">₹{ws.totalAmount}</span>
                 </div>
               )}
-              
-              {ws.incharge && (
+              <div className="flex items-center justify-between">
+                <span className="flex items-center">
+                  <FaUsers className="mr-2 text-gray-400" />
+                  Seats:
+                </span>
+                <span>{ws.maxSeats}</span>
+              </div>
+
+              {ws.venue && (
                 <div className="flex items-center">
-                  <FaUserTie className="mr-2 text-gray-400" />
-                  <span className="truncate">{ws.incharge}</span>
+                  <FaMapMarkerAlt className="mr-2 text-gray-400" />
+                  <span className="truncate text-xs">{ws.venue}</span>
                 </div>
               )}
             </div>
@@ -153,8 +208,8 @@ const WorkshopList = ({ workshops, handleEdit }) => {
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workshop</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Schedule</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Team</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Schedule</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -165,11 +220,14 @@ const WorkshopList = ({ workshops, handleEdit }) => {
             <tr key={ws?.id ?? idx} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
-                  {ws.posterImageUrl && (
+                  {ws.posterImage && (
                     <img
-                      src={ws.posterImageUrl}
+                      src={`http://localhost:7700${ws.posterImage}`}
                       alt={ws.title}
                       className="w-12 h-12 rounded-md object-cover mr-3"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
                     />
                   )}
                   <div>
@@ -180,40 +238,68 @@ const WorkshopList = ({ workshops, handleEdit }) => {
                         {ws.deliveryMode}
                       </span>
                     </div>
+                    {ws.description && (
+                      <div className="text-xs text-gray-500 mt-1 max-w-xs truncate">
+                        {ws.description}
+                      </div>
+                    )}
                   </div>
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div>{new Date(ws.startDate).toLocaleDateString()}</div>
-                <div>{new Date(ws.endDate).toLocaleDateString()}</div>
-                <div className="text-xs text-gray-400">{ws.startTime} - {ws.endTime}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {ws.teacher && (
                     <div className="flex items-center">
-                      <FaUser className="mr-1 text-gray-400" />
-                      <span>{ws.teacher}</span>
+                      <FaChalkboardTeacher className="mr-2 text-blue-500" />
+                      <div>
+                        <div className="font-medium text-blue-900">{ws.teacher}</div>
+                        <div className="text-xs text-blue-600">Teacher</div>
+                      </div>
                     </div>
                   )}
                   {ws.incharge && (
                     <div className="flex items-center">
-                      <FaUserTie className="mr-1 text-gray-400" />
-                      <span>{ws.incharge}</span>
+                      <FaUserShield className="mr-2 text-green-500" />
+                      <div>
+                        <div className="font-medium text-green-900">{ws.incharge}</div>
+                        <div className="text-xs text-green-600">Incharge</div>
+                      </div>
                     </div>
                   )}
                   {!ws.teacher && !ws.incharge && (
-                    <span className="text-gray-400">Not assigned</span>
+                    <div className="text-gray-400 text-xs italic">No team assigned</div>
                   )}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div>Seats: {ws.maxSeats}</div>
-                <div>Price: ₹{ws.price}</div>
+                <div className="flex items-center">
+                  <FaCalendar className="mr-1 text-gray-400" />
+                  {new Date(ws.startDate).toLocaleDateString()}
+                </div>
+                <div className="flex items-center mt-1">
+                  <FaClock className="mr-1 text-gray-400" />
+                  {ws.startTime} - {ws.endTime}
+                </div>
                 {ws.venue && (
                   <div className="flex items-center mt-1">
                     <FaMapMarkerAlt className="mr-1 text-gray-400" />
                     <span className="truncate max-w-32" title={ws.venue}>{ws.venue}</span>
+                  </div>
+                )}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <div className="flex items-center">
+                  <FaUsers className="mr-1 text-gray-400" />
+                  Seats: {ws.maxSeats}
+                </div>
+                <div className="flex items-center mt-1">
+                  <FaMoneyBillWave className="mr-1 text-gray-400" />
+                  Price: ₹{ws.price}
+                </div>
+                {ws.totalAmount && ws.totalAmount !== ws.price && (
+                  <div className="flex items-center mt-1 text-green-600">
+                    <FaMoneyBillWave className="mr-1" />
+                    Total: ₹{ws.totalAmount}
                   </div>
                 )}
               </td>

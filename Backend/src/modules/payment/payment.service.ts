@@ -57,18 +57,26 @@ export const getPaymentDetails = async (paymentId: string) => {
   });
 };
 
+import { createIncome } from "../income/income.service";
+
 export async function updatePaymentStatus(
   id: string, 
   status: string,
   reason?: string
 ) {
-  return await db.payment.update({
+  const updatedPayment = await db.payment.update({
     where: { id },
     data: { 
       status: status as any,
       ...(reason && { statusReason: reason })
     }
   });
+
+  if (updatedPayment.status === 'SUCCESS') {
+    await createIncome(updatedPayment);
+  }
+
+  return updatedPayment;
 }
 
 

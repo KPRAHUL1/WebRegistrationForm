@@ -11,6 +11,7 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
         startTime: '10:00',
         endTime: '17:00',
         price: 0,
+        totalAmount: 0,
         maxSeats: 50,
         isActive: true,
         deliveryMode: 'OFFLINE',
@@ -32,6 +33,7 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                 startDate: workshop.startDate ? new Date(workshop.startDate).toISOString().split('T')[0] : '',
                 endDate: workshop.endDate ? new Date(workshop.endDate).toISOString().split('T')[0] : '',
                 price: workshop.price || 0,
+                totalAmount: workshop.totalAmount || workshop.price || 0,
                 maxSeats: workshop.maxSeats || 50,
                 deliveryMode: workshop.deliveryMode || 'OFFLINE',
                 venue: workshop.venue || '',
@@ -44,8 +46,8 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
             setFormData(formattedData);
             
             // Set poster preview if workshop has existing poster
-            if (workshop.posterImageUrl) {
-                setPosterPreview(workshop.posterImageUrl);
+            if (workshop.posterImage) {
+                setPosterPreview(`http://localhost:7700${workshop.posterImage}`);
             }
         }
     }, [workshop]);
@@ -172,6 +174,34 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                                     onChange={handleChange}
                                     min="0"
                                     step="0.01"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Total Amount (₹)</label>
+                                <input
+                                    type="number"
+                                    name="totalAmount"
+                                    value={formData.totalAmount}
+                                    onChange={handleChange}
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="Auto-calculated from price"
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Maximum Seats *</label>
+                                <input
+                                    type="number"
+                                    name="maxSeats"
+                                    value={formData.maxSeats}
+                                    onChange={handleChange}
+                                    min="1"
                                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                     required
                                 />
@@ -350,32 +380,19 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                                     </div>
                                 )}
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Maximum Seats *</label>
+                            <div className="flex items-center">
                                 <input
-                                    type="number"
-                                    name="maxSeats"
-                                    value={formData.maxSeats}
+                                    type="checkbox"
+                                    name="isActive"
+                                    id="isActive"
+                                    checked={formData.isActive}
                                     onChange={handleChange}
-                                    min="1"
-                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    required
+                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                 />
+                                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                                    Active Workshop
+                                </label>
                             </div>
-                        </div>
-
-                        <div className="mt-4 flex items-center">
-                            <input
-                                type="checkbox"
-                                name="isActive"
-                                id="isActive"
-                                checked={formData.isActive}
-                                onChange={handleChange}
-                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                            />
-                            <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
-                                Active Workshop
-                            </label>
                         </div>
                     </div>
 
@@ -402,4 +419,4 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
     );
 };
 
-export default EditWorkshopModal
+export default EditWorkshopModal;

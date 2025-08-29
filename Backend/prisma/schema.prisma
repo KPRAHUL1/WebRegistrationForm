@@ -222,6 +222,7 @@ model Payment {
   paymentData         Json?
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
+  income              Income?
 
   @@map("payments")
 }
@@ -271,5 +272,31 @@ model FormSession {
   updatedAt    DateTime   @updatedAt
   expiresAt    DateTime
 
+  
   @@map("form_sessions")
+}
+
+model Income {
+  id          String   @id @default(cuid())
+  amount      Float
+  source      String // e.g., "Workshop Fee", "Course Fee", "Donation"
+  description String?
+  paymentId   String?  @unique
+  payment     Payment? @relation(fields: [paymentId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("incomes")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  amount      Float
+  category    String // e.g., "Marketing", "Venue Rent", "Software"
+  description String?
+  spentAt     DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("expenses")
 }
