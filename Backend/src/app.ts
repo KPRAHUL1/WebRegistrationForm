@@ -34,6 +34,8 @@ const adminApi = require("./modules/admin/admin.route");
 const registerApi = require("./modules/workshopregister/workshopRegister.route");
 const courseApi = require("./modules/courses/course.route");
 const internshipApi = require("./modules/internship/internship.route");
+const incomeApi = require("./modules/income/income.route");
+const expenseApi = require("./modules/expense/expense.route");
 
 app.use("/api/admin", adminApi);
 app.use("/api/workshop", workshopApi);
@@ -41,7 +43,11 @@ app.use("/api/payments", paymentApi);
 app.use("/api/register",registerApi);
 app.use("/api/courses",courseApi);
 app.use("/api/internship",internshipApi);
+app.use("/api/incomes", incomeApi);
+app.use("/api/expenses", expenseApi);
 
+// Serve static files
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Error handling middleware
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
@@ -51,11 +57,10 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     message: error.message 
   });
 });
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
-
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.listen(app.get("port"), () => {
   console.log(

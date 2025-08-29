@@ -4,13 +4,15 @@ import {
   FaChalkboardTeacher,
   FaBook,
   FaBriefcase,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaMoneyBillWave
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import WorkshopManagement from '../components/Workshop/WorkshopManagementSystem';
 import CourseManagement from '../components/Courses/CourseManagemnt';
 import { useDashboardData } from '../hooks/useDashboardData'; // Import the custom hook
 import InternshipManagement from '../components/Internship/InternshipManagement';
+import IncomeAndExpense from '../components/IncomeAndExpense/IncomeAndExpense';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -109,6 +111,14 @@ const AdminDashboard = () => {
             onCreateInternship={handleCreateInternship}
           />
         );
+      case 'income':
+        return (
+          <IncomeAndExpense
+            workshops={dashboardData.workshops}
+            courses={dashboardData.courses}
+            internships={dashboardData.internships}
+          />
+        );
       default:
         return null;
     }
@@ -187,6 +197,7 @@ const AdminDashboard = () => {
                   { key: 'workshops', label: 'Workshops', icon: FaChalkboardTeacher },
                   { key: 'courses', label: 'Courses', icon: FaBook },
                   { key: 'internships', label: 'Internships', icon: FaBriefcase },
+                  { key: 'income', label: 'Income', icon: FaMoneyBillWave },
                 ].map(({ key, label, icon: Icon }) => (
                   <button
                     key={key}

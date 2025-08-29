@@ -25,7 +25,7 @@ export const workshopService = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(workshopData)
+      body: JSON.stringify({ ...workshopData, price: workshopData.price })
     });
     if (!response.ok) throw new Error('Failed to create workshop');
     return response.json();
@@ -40,7 +40,25 @@ export const workshopService = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(workshopData)
+      body: JSON.stringify({ ...workshopData, price: workshopData.price })
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update workshop');
+    }
+    return response.json();
+  },
+
+  // Update workshop with file upload
+  updateWorkshopWithFile: async (id, formData) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await fetch(`${API_BASE}/workshop/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`
+        // Don't set Content-Type for FormData, let the browser set it with boundary
+      },
+      body: formData
     });
     if (!response.ok) {
       const errorData = await response.json();
@@ -61,6 +79,7 @@ export const workshopService = {
     if (!response.ok) throw new Error('Failed to delete workshop');
     return response.json();
   },
+  
   // In WorkshopApi.js
  getRegistrations : async () => {
   try {

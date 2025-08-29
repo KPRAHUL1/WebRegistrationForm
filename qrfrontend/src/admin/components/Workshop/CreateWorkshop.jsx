@@ -3,12 +3,21 @@ import { useState } from "react";
 const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
   const [formData, setFormData] = useState({
     title: '',
+    description: '',
     startDate: '',
     endDate: '',
     startTime: '09:00',
     endTime: '17:00',
-    seats: 50,
+    maxSeats: 50,
     price: 0,
+    totalAmount: 0,
+    deliveryMode: 'OFFLINE',
+    venue: '',
+    meetingLink: '',
+    posterImage: '',
+    teacher: '',
+    teacherBio: '',
+    incharge: '',
     isActive: true,
   });
 
@@ -26,17 +35,33 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Calculate total amount if not provided
+      const finalData = {
+        ...formData,
+        totalAmount: formData.totalAmount || formData.price,
+        createdBy: localStorage.getItem('adminUser') ? JSON.parse(localStorage.getItem('adminUser')).id : null
+      };
+      
       // Await the workshop creation
-      await onCreateWorkshop(formData);
+      await onCreateWorkshop(finalData);
       // Only reset the form on success
       setFormData({
         title: '',
+        description: '',
         startDate: '',
         endDate: '',
         startTime: '09:00',
         endTime: '17:00',
-        seats: 50,
+        maxSeats: 50,
         price: 0,
+        totalAmount: 0,
+        deliveryMode: 'OFFLINE',
+        venue: '',
+        meetingLink: '',
+        posterImage: '',
+        teacher: '',
+        teacherBio: '',
+        incharge: '',
         isActive: true,
       });
       // Optionally, navigate back to the workshops view
@@ -55,7 +80,7 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">Workshop Title</label>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">Workshop Title *</label>
             <input
               type="text"
               id="title"
@@ -67,7 +92,7 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
             />
           </div>
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (₹)</label>
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (₹) *</label>
             <input
               type="number"
               id="price"
@@ -80,9 +105,22 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
             />
           </div>
         </div>
+
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows={3}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date</label>
+            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date *</label>
             <input
               type="date"
               id="startDate"
@@ -94,7 +132,7 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
             />
           </div>
           <div>
-            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date</label>
+            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date *</label>
             <input
               type="date"
               id="endDate"
@@ -106,9 +144,10 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
             />
           </div>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">Start Time</label>
+            <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">Start Time *</label>
             <input
               type="time"
               id="startTime"
@@ -120,7 +159,7 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
             />
           </div>
           <div>
-            <label htmlFor="endTime" className="block text-sm font-medium text-gray-700">End Time</label>
+            <label htmlFor="endTime" className="block text-sm font-medium text-gray-700">End Time *</label>
             <input
               type="time"
               id="endTime"
@@ -132,19 +171,132 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
             />
           </div>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="maxSeats" className="block text-sm font-medium text-gray-700">Max Seats *</label>
+            <input
+              type="number"
+              id="maxSeats"
+              name="maxSeats"
+              value={formData.maxSeats}
+              onChange={handleChange}
+              min="1"
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="totalAmount" className="block text-sm font-medium text-gray-700">Total Amount (₹)</label>
+            <input
+              type="number"
+              id="totalAmount"
+              name="totalAmount"
+              value={formData.totalAmount}
+              onChange={handleChange}
+              min="0"
+              placeholder="Auto-calculated from price"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="deliveryMode" className="block text-sm font-medium text-gray-700">Delivery Mode *</label>
+            <select
+              id="deliveryMode"
+              name="deliveryMode"
+              value={formData.deliveryMode}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            >
+              <option value="OFFLINE">Offline</option>
+              <option value="ONLINE">Online</option>
+              <option value="HYBRID">Hybrid</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="venue" className="block text-sm font-medium text-gray-700">Venue</label>
+            <input
+              type="text"
+              id="venue"
+              name="venue"
+              value={formData.venue}
+              onChange={handleChange}
+              placeholder="Physical venue for offline mode"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
+
         <div>
-          <label htmlFor="seats" className="block text-sm font-medium text-gray-700">Max Seats</label>
+          <label htmlFor="meetingLink" className="block text-sm font-medium text-gray-700">Meeting Link</label>
           <input
-            type="number"
-            id="seats"
-            name="seats"
-            value={formData.seats}
+            type="url"
+            id="meetingLink"
+            name="meetingLink"
+            value={formData.meetingLink}
             onChange={handleChange}
-            min="1"
-            required
+            placeholder="Meeting link for online mode"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="teacher" className="block text-sm font-medium text-gray-700">Primary Teacher</label>
+            <input
+              type="text"
+              id="teacher"
+              name="teacher"
+              value={formData.teacher}
+              onChange={handleChange}
+              placeholder="Primary teacher/instructor name"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="incharge" className="block text-sm font-medium text-gray-700">Program Incharge</label>
+            <input
+              type="text"
+              id="incharge"
+              name="incharge"
+              value={formData.incharge}
+              onChange={handleChange}
+              placeholder="Program coordinator/incharge"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="teacherBio" className="block text-sm font-medium text-gray-700">Teacher Biography</label>
+          <textarea
+            id="teacherBio"
+            name="teacherBio"
+            value={formData.teacherBio}
+            onChange={handleChange}
+            rows={3}
+            placeholder="Teacher biography and qualifications"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="posterImage" className="block text-sm font-medium text-gray-700">Poster Image URL</label>
+          <input
+            type="url"
+            id="posterImage"
+            name="posterImage"
+            value={formData.posterImage}
+            onChange={handleChange}
+            placeholder="Poster image URL/path"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+
         <div className="flex items-center space-x-2">
           <input
             type="checkbox"
@@ -156,6 +308,7 @@ const CreateWorkshopForm = ({ onCreateWorkshop, setView }) => {
           />
           <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Set as Active</label>
         </div>
+
         <div className="flex justify-end space-x-3 mt-6">
           <button
             type="button"

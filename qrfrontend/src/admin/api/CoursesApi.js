@@ -34,6 +34,7 @@ export const courseService = {
         },
         body: JSON.stringify({
           ...courseData,
+          price: courseData.price,
           createdBy: adminId,
         }),
       });
@@ -63,7 +64,7 @@ export const courseService = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(courseData),
+        body: JSON.stringify({ ...courseData, price: courseData.price }),
       });
       
       if (!response.ok) {

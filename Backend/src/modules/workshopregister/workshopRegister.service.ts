@@ -74,17 +74,45 @@ export async function getWorkshopRegistrations(workshopId: string) {
 }
 
 export async function verifyPayment(registrationId: string) {
-  return await db.workshopRegistration.update({
-    where: { id: registrationId },
-    data: {
-      status: "CONFIRMED",
-      payment: {
-        update: {
-          status: "SUCCESS",
-          verifiedAt: new Date()
+  // Use a transaction to ensure consistency
+  return await db.$transaction(async (tx) => {
+    // 1) Update registration + payment to SUCCESS
+    const updatedRegistration = await tx.workshopRegistration.update({
+      where: { id: registrationId },
+      data: {
+        status: "CONFIRMED",
+        payment: {
+          update: {
+            status: "SUCCESS",
+            verifiedAt: new Date()
+          }
         }
+      },
+      include: {
+        payment: true,
+        workshop: true
+      }
+    });
+
+    // 2) Create income if not already created for this payment
+    if (updatedRegistration.paymentId) {
+      const existingIncome = await tx.income.findUnique({
+        where: { paymentId: updatedRegistration.paymentId }
+      });
+
+      if (!existingIncome) {
+        await tx.income.create({
+          data: {
+            amount: updatedRegistration.payment?.amount || 0,
+            source: `Workshop Fee: ${updatedRegistration.workshop?.title || ''}`,
+            description: `Registration by ${updatedRegistration.name} (${updatedRegistration.email})`,
+            paymentId: updatedRegistration.paymentId
+          }
+        });
       }
     }
+
+    return updatedRegistration;
   });
 }
 
