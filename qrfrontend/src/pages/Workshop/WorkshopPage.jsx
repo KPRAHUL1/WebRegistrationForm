@@ -231,7 +231,7 @@ const WorkshopsPage = () => {
 
                   <div className="flex items-center">
                     <FaRupeeSign className="mr-3 text-green-400 w-4" />
-                    <span className="font-semibold text-green-400">₹{workshop.price}</span>
+                    <span className="font-semibold text-green-400">{workshop.price}</span>
                   </div>
 
                   {workshop.teacher && (
