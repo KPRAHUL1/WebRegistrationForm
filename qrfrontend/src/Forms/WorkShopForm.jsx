@@ -1,7 +1,7 @@
 // WorkShopForm.js
 import React, { useState, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -174,20 +174,20 @@ const handleSubmit = async (e) => {
   const upiValue = `upi://pay?pa=kprahul1143@okaxis&pn=Roriri&am=${workshop.price}&cu=INR`;
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="min-h-screen flex flex-col items-center justify-center bg-gray-50"
     >
-      <motion.div
+      <Motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
         className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md"
       >
         {success ? (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-center"
@@ -204,29 +204,29 @@ const handleSubmit = async (e) => {
             >
               Register Another
             </button>
-          </motion.div>
+          </Motion.div>
         ) : (
           <>
-            <motion.h2
+            <Motion.h2
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-3xl font-extrabold mb-6 text-center text-blue-700"
             >
               {workshop.title} Registration
-            </motion.h2>
+            </Motion.h2>
 
             {error && (
-              <motion.div
+              <Motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="mb-4 p-3 bg-red-100 text-red-700 rounded"
               >
                 {error}
-              </motion.div>
+              </Motion.div>
             )}
 
-            <motion.form
+            <Motion.form
               onSubmit={handleSubmit}
               className="space-y-4"
               initial={{ opacity: 0 }}
@@ -321,7 +321,7 @@ const handleSubmit = async (e) => {
                 </div>
               ))}
 
-              <motion.div
+              <Motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
@@ -332,7 +332,7 @@ const handleSubmit = async (e) => {
                   Scan QR to pay{" "}
                   <span className="font-semibold text-blue-700">₹{workshop.price}</span> via UPI
                 </span>
-              </motion.div>
+              </Motion.div>
 
               <input
                 type="text"
@@ -358,7 +358,7 @@ const handleSubmit = async (e) => {
                 />
               </div>
 
-              <motion.button
+              <Motion.button
                 type="submit"
                 disabled={isSubmitting}
                 whileHover={{ scale: 1.04 }}
@@ -368,12 +368,12 @@ const handleSubmit = async (e) => {
                 }`}
               >
                 {isSubmitting ? "Processing..." : "Register"}
-              </motion.button>
-            </motion.form>
+              </Motion.button>
+            </Motion.form>
           </>
         )}
-      </motion.div>
-    </motion.div>
+      </Motion.div>
+    </Motion.div>
   );
 };
 

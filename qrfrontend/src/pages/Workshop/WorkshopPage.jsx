@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { FaMapMarkerAlt, FaVideo, FaUser, FaUserTie, FaClock, FaCalendarAlt, FaRupeeSign } from "react-icons/fa";
 
 const containerVariants = {
@@ -115,17 +115,17 @@ const WorkshopsPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-8 bg-gray-900 text-white">
-      <motion.h1
+      <Motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="text-4xl md:text-5xl font-extrabold text-center mb-6"
       >
         Available Workshops
-      </motion.h1>
+      </Motion.h1>
 
       {/* Filter Controls */}
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -177,9 +177,9 @@ const WorkshopsPage = () => {
           </div>
           Hybrid ({workshops.filter(w => w.deliveryMode === 'HYBRID').length})
         </button>
-      </motion.div>
+      </Motion.div>
 
-      <motion.div
+      <Motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -187,7 +187,7 @@ const WorkshopsPage = () => {
       >
         {filteredWorkshops.length > 0 ? (
           filteredWorkshops.map((workshop) => (
-            <motion.div
+            <Motion.div
               key={workshop.id}
               variants={itemVariants}
               className="bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
@@ -276,7 +276,7 @@ const WorkshopsPage = () => {
                   </Link>
                 </div>
               </div>
-            </motion.div>
+            </Motion.div>
           ))
         ) : (
           <div className="col-span-full text-center py-12">
@@ -291,7 +291,7 @@ const WorkshopsPage = () => {
             </p>
           </div>
         )}
-      </motion.div>
+      </Motion.div>
     </div>
   );
 };
