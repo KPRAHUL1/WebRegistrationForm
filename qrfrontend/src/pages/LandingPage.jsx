@@ -1,6 +1,6 @@
 // LandingPage.js
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { logo } from "../assets/logo/logo";
 
@@ -43,14 +43,14 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4  ">
-      <motion.div
+      <Motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
         className="w-full max-w-md text-center"
       >
         {/* Logo & Title */}
-        <motion.div variants={itemVariants} className="mb-12">
+        <Motion.div variants={itemVariants} className="mb-12">
           <img
             src={logo}
             alt="Company Logo"
@@ -62,10 +62,10 @@ export default function LandingPage() {
           <p className="text-gray-400 text-md md:text-lg">
             Select your area of interest to get started
           </p>
-        </motion.div>
+        </Motion.div>
 
         {/* Dropdown + Button */}
-        <motion.div
+        <Motion.div
           variants={itemVariants}
           className="bg-gray-800 rounded-xl shadow-2xl p-8"
         >
@@ -106,16 +106,16 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <motion.button
+          <Motion.button
             onClick={handleContinue}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={`mt-8 w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 active:bg-purple-800 shadow-lg transition-all duration-300`}
           >
             Continue
-          </motion.button>
-        </motion.div>
-      </motion.div>
+          </Motion.button>
+        </Motion.div>
+      </Motion.div>
     </div>
   );
 }
