@@ -1,4 +1,3 @@
-// LandingPage.js
 import React, { useState } from "react";
 import { motion as Motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";

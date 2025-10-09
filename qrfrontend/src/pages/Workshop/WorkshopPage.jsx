@@ -1,4 +1,3 @@
-// WorkshopsPage.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -80,7 +79,6 @@ const WorkshopsPage = () => {
     }
   };
 
-  // Filter workshops based on delivery mode
   const filteredWorkshops = workshops.filter(workshop => 
     filterMode === 'all' || workshop.deliveryMode === filterMode
   );
@@ -124,7 +122,6 @@ const WorkshopsPage = () => {
         Available Workshops
       </Motion.h1>
 
-      {/* Filter Controls */}
       <Motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -192,7 +189,6 @@ const WorkshopsPage = () => {
               variants={itemVariants}
               className="bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
             >
-              {/* Poster Image */}
               {workshop.posterImageUrl && (
                 <div className="h-48 overflow-hidden">
                   <img

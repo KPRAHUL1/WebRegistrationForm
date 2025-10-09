@@ -1,4 +1,3 @@
-// WorkShopForm.js
 import React, { useState, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { motion as Motion } from "framer-motion";
