@@ -169,7 +169,6 @@ const CourseForm = () => {
         </motion.button>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Course Info Card */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -216,7 +215,6 @@ const CourseForm = () => {
             </div>
           </motion.div>
 
-          {/* Registration Form */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
