@@ -1,4 +1,3 @@
-// components/EditWorkshopModal.js
 import React, { useState, useEffect } from 'react';
 import { workshopService } from '../../api/WorkshopApi';
 
@@ -45,7 +44,6 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
             };
             setFormData(formattedData);
             
-            // Set poster preview if workshop has existing poster
             if (workshop.posterImage) {
                 setPosterPreview(`http://localhost:7700${workshop.posterImage}`);
             }
@@ -87,10 +85,8 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
         }
 
         try {
-            // Create FormData for file upload
             const formDataToSend = new FormData();
-            
-            // Append all form fields
+
             Object.keys(formData).forEach(key => {
                 if (key === 'posterImage' && formData[key]) {
                     formDataToSend.append('posterImage', formData[key]);
@@ -99,7 +95,6 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                 }
             });
 
-            // Add existing poster image path if no new image selected
             if (!formData.posterImage && workshop.posterImage) {
                 formDataToSend.append('existingPosterImage', workshop.posterImage);
             }
@@ -118,8 +113,6 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
             setIsLoading(false);
         }
     };
-
-    // Clean up preview URL on component unmount
     useEffect(() => {
         return () => {
             if (posterPreview && posterPreview.startsWith('blob:')) {
@@ -150,7 +143,6 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Basic Information */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="text-lg font-semibold mb-4 text-gray-800">Basic Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -221,7 +213,6 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                         </div>
                     </div>
 
-                    {/* Schedule & Delivery */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="text-lg font-semibold mb-4 text-gray-800">Schedule & Delivery</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -286,7 +277,6 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                             </div>
                         </div>
 
-                        {/* Venue/Meeting Link based on delivery mode */}
                         {formData.deliveryMode === 'OFFLINE' || formData.deliveryMode === 'HYBRID' ? (
                             <div className="mt-4">
                                 <label className="block text-sm font-medium text-gray-700">Venue</label>
@@ -316,7 +306,6 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                         ) : null}
                     </div>
 
-                    {/* Team Information */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="text-lg font-semibold mb-4 text-gray-800">Team Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -357,7 +346,6 @@ const EditWorkshopModal = ({ isOpen, onClose, workshop, onSave }) => {
                         </div>
                     </div>
 
-                    {/* Media & Settings */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="text-lg font-semibold mb-4 text-gray-800">Media & Settings</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
