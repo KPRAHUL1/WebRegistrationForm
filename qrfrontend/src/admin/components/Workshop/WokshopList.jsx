@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { FaPencilAlt, FaSearch, FaMapMarkerAlt, FaVideo, FaUser, FaUserTie, FaImage, FaCalendar, FaClock, FaMoneyBillWave, FaUsers, FaChalkboardTeacher, FaUserShield } from 'react-icons/fa';
 
 const WorkshopList = ({ workshops, handleEdit }) => {
-  // State for search term and pagination
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [filterMode, setFilterMode] = useState('all');
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
   const workshopsPerPage = 5;
 
-  // Step 1: Filter workshops based on search term and delivery mode
   const filteredWorkshops = workshops.filter(ws => {
     const matchesSearch = ws.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ws.teacher?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -19,14 +17,12 @@ const WorkshopList = ({ workshops, handleEdit }) => {
     return matchesSearch && matchesMode;
   });
 
-  // Step 2: Calculate pagination variables
   const indexOfLastWorkshop = currentPage * workshopsPerPage;
   const indexOfFirstWorkshop = indexOfLastWorkshop - workshopsPerPage;
   const currentWorkshops = filteredWorkshops.slice(indexOfFirstWorkshop, indexOfLastWorkshop);
   
   const totalPages = Math.ceil(filteredWorkshops.length / workshopsPerPage);
   
-  // Create an array of page numbers for rendering
   const pageNumbers = [];
   for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
@@ -37,7 +33,6 @@ const WorkshopList = ({ workshops, handleEdit }) => {
     setCurrentPage(pageNumber);
   };
   
-  // Reset page to 1 whenever the search term changes
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
@@ -78,7 +73,6 @@ const WorkshopList = ({ workshops, handleEdit }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {currentWorkshops.map((ws, idx) => (
         <div key={ws?.id ?? idx} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-          {/* Poster Image */}
           {ws.posterImage && (
             <div className="h-48 overflow-hidden">
               <img
@@ -109,7 +103,6 @@ const WorkshopList = ({ workshops, handleEdit }) => {
               <p className="text-gray-600 text-sm mb-4 line-clamp-2">{ws.description}</p>
             )}
 
-            {/* Team Information - Prominently Displayed */}
             <div className="bg-blue-50 p-3 rounded-lg mb-4 border border-blue-200">
               <h4 className="text-sm font-semibold text-blue-800 mb-2 flex items-center">
                 <FaChalkboardTeacher className="mr-2" />
