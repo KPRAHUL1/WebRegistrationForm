@@ -1,4 +1,3 @@
-// components/WorkshopManagement.js
 import React, { useState } from 'react';
 import EditWorkshopModal from './EditWorkshopModel';
 import WorkshopList from './WokshopList';
@@ -6,13 +5,11 @@ import RegistrationList from './RegistrationList';
 import CreateWorkshopForm from './CreateWorkshop';
 
 const WorkshopManagement = ({ workshops, workshopRegistrations, onUpdateWorkshop, onCreateWorkshop }) => {
-    // State for switching between views: 'workshops' or 'registrations'
     const [view, setView] = useState('workshops');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedWorkshop, setSelectedWorkshop] = useState(null);
 
     const handleEdit = (workshop) => {
-        // Add a safety check to ensure a valid workshop object is passed
         if (!workshop || !workshop.id) {
             console.error("Attempted to edit a workshop without a valid ID:", workshop);
             return;
@@ -41,7 +38,6 @@ const WorkshopManagement = ({ workshops, workshopRegistrations, onUpdateWorkshop
 
     return (
         <div>
-            {/* Sub-navigation for switching views */}
             <div className="flex space-x-2 mb-6 border-b pb-4">
                 <SubNavButton activeView={view} targetView="workshops" setView={setView}>
                     Manage Workshops
@@ -58,7 +54,6 @@ const WorkshopManagement = ({ workshops, workshopRegistrations, onUpdateWorkshop
                 </SubNavButton>
             </div>
 
-            {/* Conditionally render the active view */}
             {view === 'workshops' ? (
                 <WorkshopList
                     workshops={workshops}
@@ -76,7 +71,6 @@ const WorkshopManagement = ({ workshops, workshopRegistrations, onUpdateWorkshop
                 />
             )}
 
-            {/* The Edit Modal is controlled here */}
             {selectedWorkshop && (
                 <EditWorkshopModal
                     isOpen={isModalOpen}

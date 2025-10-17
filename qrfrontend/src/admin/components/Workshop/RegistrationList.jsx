@@ -1,4 +1,3 @@
-// RegistrationList.js
 import React, { useState, useEffect } from 'react';
 import { FaEye, FaDownload, FaSearch, FaCheckCircle } from 'react-icons/fa';
 import axios from 'axios';
